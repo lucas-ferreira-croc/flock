@@ -195,11 +195,11 @@ void Shader::add_shader(const char* shader_code, GLenum shader_type)
 std::string Shader::read_file(const std::string& filepath)
 {
 	std::fstream stream(filepath);
-	std::stringstream buffer;
+	std::stringstream fragmentShaderBuffer;
 
-	buffer << stream.rdbuf();
+	fragmentShaderBuffer << stream.rdbuf();
 	stream.close();
 
-	std::string source_code = buffer.str();
+	std::string source_code = fragmentShaderBuffer.str();
 	return source_code;
 }
