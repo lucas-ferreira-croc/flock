@@ -22,12 +22,14 @@ set(IMGUI_SOURCES
 set(SOURCES
 	src/main.cpp
 	src/render/shader.cpp
+	src/render/camera.cpp
 	src/texture/texture.cpp
 	deps/glad/src/gl.c
 )
 
 set(HEADERS
 	src/render/shader.hpp
+	src/render/camera.hpp
 	src/texture/texture.hpp
 	src/ui/imgui_config.hpp
 )

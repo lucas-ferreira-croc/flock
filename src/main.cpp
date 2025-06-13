@@ -9,7 +9,9 @@
 
 #include "ui/imgui_config.hpp"
 #include "render/shader.hpp"
+#include "render/camera.hpp"
 #include "texture/texture.hpp"
+
 
 const int WINDOW_WIDTH = 1600;
 const int WINDOW_HEIGHT = 1200;
@@ -118,29 +120,42 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 330");
     /// end of Imgui Session
 
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-         0.5f,  0.5f, 0.0f, 1.0f, 1.0f
+    float vertices[] = {    
+        
+        // x     y      z    r    g     b      u     v
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
     };
 
-    unsigned int VAO, VBO;
+    unsigned int indices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    unsigned int VAO, VBO, IBO;
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
+    
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
+
     //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glm::vec3 modelPosition;
 
     const char* vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
 	const char* fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
@@ -151,8 +166,27 @@ int main()
     loadFileIntoBuffer(vs_filename, vertexShaderBuffer);
     loadFileIntoBuffer(fs_filename, fragmentShaderBuffer);
 
-    Texture texture(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\espeon.jpg");
+    Texture texture(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\mew.jpg");
     texture.loadTextureA();
+
+    ///
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 target = glm::vec3(0.0f, 0.0f, -1.0f);
+    Camera camera(cameraPos, target);
+    glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f, 100.0f);
+    ///
+
+
+    ///
+   /* glfwSetKeyCallback(window, &Camera::keyCallback);
+    glfwSetCursorPosCallback(window, &Camera::cursorPositionCallback);*/
+    ///
+
+    ///
+    double previousSeconds = glfwGetTime();
+
+    ///
+    float angle = 0.0f;
 
     while(!glfwWindowShouldClose(window))
     {
@@ -171,15 +205,35 @@ int main()
             loadFileIntoBuffer(vs_filename, vertexShaderBuffer);
             loadFileIntoBuffer(fs_filename, fragmentShaderBuffer);
         }
+        
         ///
 
+        double currentSeconds = glfwGetTime();
+        double deltaTime = currentSeconds - previousSeconds;
+        previousSeconds = currentSeconds;
+        camera.update(deltaTime);
+        ///
+        
+        glm::mat4 wvp(1.0f);
+        glm::mat4 modelTransform(1.0f);
+
+        //angle += 50.5f * (float)deltaTime;
+
+        modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+        wvp = projection * camera.getLookAt() * modelTransform;
         /// opengl
         
         texture.use(GL_TEXTURE0);
         shader.bind();
-        shader.setInt("texture_sampler", 0);
+        shader.setInt("textureSampler", 0);
+        shader.setMat4("wvp", wvp);
+
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
         ///
         
         /// ImGui
