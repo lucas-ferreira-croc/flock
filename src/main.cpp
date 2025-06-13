@@ -7,11 +7,12 @@
 #include <sstream>
 #include <string>
 
-#include "ui/imgui_config.h"
-#include "render/Shader.hpp"
+#include "ui/imgui_config.hpp"
+#include "render/shader.hpp"
+#include "texture/texture.hpp"
 
-const int WINDOW_WIDTH = 1920;
-const int WINDOW_HEIGHT = 1080;
+const int WINDOW_WIDTH = 1600;
+const int WINDOW_HEIGHT = 1200;
 
 const int BUFFER_SIZE = 4096;
 static char fragmentShaderBuffer[BUFFER_SIZE] = "";
@@ -57,7 +58,7 @@ void loadBufferIntoFile(const std::string& filename, static char* buffer)
 
 void reloadShaderFromUI(Shader& shader)
 {
-    shader.reload_shader();
+    shader.reload();
 }
 
 
@@ -118,13 +119,13 @@ int main()
     /// end of Imgui Session
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.5f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
 
-       -0.5f, -0.5f, 0.0f,
-       -0.5f,  0.5f, 0.0f,
-        0.5f,  0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, 0.0f, 1.0f, 1.0f
     };
 
     unsigned int VAO, VBO;
@@ -136,17 +137,22 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
     //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     const char* vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
 	const char* fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
 	
     Shader shader;
-    shader.create_from_file(vs_filename, fs_filename);
+    shader.createFromFile(vs_filename, fs_filename);
 
     loadFileIntoBuffer(vs_filename, vertexShaderBuffer);
     loadFileIntoBuffer(fs_filename, fragmentShaderBuffer);
+
+    Texture texture(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\espeon.jpg");
+    texture.loadTextureA();
 
     while(!glfwWindowShouldClose(window))
     {
@@ -161,13 +167,17 @@ int main()
 
         if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         {
-            shader.reload_shader();
+            shader.reload();
+            loadFileIntoBuffer(vs_filename, vertexShaderBuffer);
+            loadFileIntoBuffer(fs_filename, fragmentShaderBuffer);
         }
         ///
 
         /// opengl
-
+        
+        texture.use(GL_TEXTURE0);
         shader.bind();
+        shader.setInt("texture_sampler", 0);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         ///

@@ -1,4 +1,4 @@
-#include "render/Shader.hpp"
+#include "render/shader.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -14,18 +14,18 @@ Shader::~Shader()
 	clear();
 }
 
-void Shader::create_from_string(const char* vertex_code, const char* fragment_code)
+void Shader::createFromString(const char* vertex_code, const char* fragment_code)
 {
-	compile_shader(vertex_code, fragment_code);
+	compile(vertex_code, fragment_code);
 	unbind();
 }
 
-void Shader::create_from_file(const std::string& vertex_code_path, const std::string& fragment_code_path)
+void Shader::createFromFile(const std::string& vertex_code_path, const std::string& fragment_code_path)
 {
-	vertex_path = vertex_code_path;
-	fragment_path = fragment_code_path;
+	_vertexPath = vertex_code_path;
+	_fragmentPath = fragment_code_path;
 
-	compile_shader(read_file(vertex_code_path).c_str(), read_file(fragment_code_path).c_str());
+	compile(readFile(vertex_code_path).c_str(), readFile(fragment_code_path).c_str());
 	unbind();
 }
 
@@ -50,42 +50,42 @@ void Shader::clear()
 	// }
 }
 
-void Shader::set_int(const std::string& name, int value)
+void Shader::setInt(const std::string& name, int value)
 {
-	glUniform1i(get_uniform_location(name), value);
+	glUniform1i(getUniformLocation(name), value);
 }
 
-void Shader::set_float(const std::string& name, float value)
+void Shader::setFloat(const std::string& name, float value)
 {
-	glUniform1f(get_uniform_location(name), value);
+	glUniform1f(getUniformLocation(name), value);
 }
 
-void Shader::set_float4(const std::string& name, float r, float g, float b, float a)
+void Shader::setFloat4(const std::string& name, float r, float g, float b, float a)
 {
-	glUniform4f(get_uniform_location(name), r, g, b, a);
+	glUniform4f(getUniformLocation(name), r, g, b, a);
 }
 
-void Shader::set_mat4(const std::string& name, float* value)
+void Shader::setMat4(const std::string& name, float* value)
 {
-	glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, value);
+	glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, value);
 }
 
-void Shader::set_float3(const std::string& name, const glm::vec3& value)
+void Shader::setFloat3(const std::string& name, const glm::vec3& value)
 {
-	glUniform3f(get_uniform_location(name), value.x, value.y, value.z);
+	glUniform3f(getUniformLocation(name), value.x, value.y, value.z);
 }
 
-void Shader::set_float4(const std::string& name, const glm::vec4& value)
+void Shader::setFloat4(const std::string& name, const glm::vec4& value)
 {
-	glUniform4f(get_uniform_location(name), value.x, value.y, value.z, value.w);
+	glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
 }
 
-void Shader::set_mat4(const std::string& name, const glm::mat4& value)
+void Shader::setMat4(const std::string& name, const glm::mat4& value)
 {
-	glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
+	glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::set_vec3_array(const std::string& name, std::vector<glm::vec3> values)
+void Shader::setVec3Array(const std::string& name, std::vector<glm::vec3> values)
 {
 	std::stringstream ss;
 
@@ -93,7 +93,7 @@ void Shader::set_vec3_array(const std::string& name, std::vector<glm::vec3> valu
 	{
 		ss << name << "[" << i << "]";
 		std::string uniform = ss.str();
-		set_float3(uniform, values[i]);
+		setFloat3(uniform, values[i]);
 		ss.str("");
 	}
 }
@@ -104,30 +104,30 @@ void Shader::set_vec3_array(const std::string& name, std::vector<glm::vec3> valu
 //	set_float3("material.specular_color", material.m_SpecularColor);
 //}
 
-int Shader::get_uniform_location(std::string name)
+int Shader::getUniformLocation(std::string name)
 {
 	int location;
-	if (uniform_cache.find(name) != uniform_cache.end())
+	if (_uniformCache.find(name) != _uniformCache.end())
 	{
-		location = uniform_cache.at(name);
+		location = _uniformCache.at(name);
 		return location;
 	}
 	location = glGetUniformLocation(id, name.c_str());
-	uniform_cache.insert(std::make_pair(name, location));
+	_uniformCache.insert(std::make_pair(name, location));
 	return location;
 }
 
-bool Shader::reload_shader()
+bool Shader::reload()
 {
-	if(vertex_path.empty() || fragment_path.empty())
+	if(_vertexPath.empty() || _fragmentPath.empty())
 		return false;
 
 	clear();
-	create_from_file(vertex_path, fragment_path);
+	createFromFile(_vertexPath, _fragmentPath);
 	bind();
 }
 
-void Shader::compile_shader(const char* vertex_code, const char* fragment_code)
+void Shader::compile(const char* vertex_code, const char* fragment_code)
 {
 	id = glCreateProgram();
 
@@ -136,8 +136,8 @@ void Shader::compile_shader(const char* vertex_code, const char* fragment_code)
 		return;
 	}
 
-	add_shader(vertex_code, GL_VERTEX_SHADER);
-	add_shader(fragment_code, GL_FRAGMENT_SHADER);
+	add(vertex_code, GL_VERTEX_SHADER);
+	add(fragment_code, GL_FRAGMENT_SHADER);
 
 	int result = 0;
 	char error_log[1024] = { 0 };
@@ -163,7 +163,7 @@ void Shader::compile_shader(const char* vertex_code, const char* fragment_code)
 	}
 }
 
-void Shader::add_shader(const char* shader_code, GLenum shader_type)
+void Shader::add(const char* shader_code, GLenum shader_type)
 {
 	unsigned int shader = glCreateShader(shader_type);
 	const char* code[1];
@@ -192,7 +192,7 @@ void Shader::add_shader(const char* shader_code, GLenum shader_type)
 
 }
 
-std::string Shader::read_file(const std::string& filepath)
+std::string Shader::readFile(const std::string& filepath)
 {
 	std::fstream stream(filepath);
 	std::stringstream fragmentShaderBuffer;
