@@ -8,6 +8,7 @@
 #include <string>
 
 #include "ui/imgui_config.hpp"
+#include "render/display.hpp"
 #include "render/shader.hpp"
 #include "render/camera.hpp"
 #include "texture/texture.hpp"
@@ -66,38 +67,22 @@ void reloadShaderFromUI(Shader& shader)
 
 int main()
 {
-    if (!glfwInit())
-    {
-        std::cerr << "GLFW not initialized\n";
-    }
+    Display display(WINDOW_WIDTH, WINDOW_HEIGHT);
+    display.initializeWindow();
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    ///
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 target = glm::vec3(0.0f, 0.0f, -1.0f);
+    Camera camera(cameraPos, target);
+    glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f, 100.0f);
+    ///
 
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "flock", nullptr, nullptr);
-    if(!window)
-    {
-        std::cerr << "failed creating GLFW window\n";
-        glfwTerminate();
-        return -1;
-    }
-
-    glfwMakeContextCurrent(window);
-
-    if(!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
-    {
-        std::cerr << "failed initializing glad\n";
-        glfwDestroyWindow(window);
-	    glfwTerminate();
-        return -1;
-    }
-
-    
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
+    ///
+    glfwSetWindowUserPointer(display.getWindow(), &camera);
+    glfwSetKeyCallback(display.getWindow(), &Camera::keyCallback);
+    glfwSetCursorPosCallback(display.getWindow(), &Camera::cursorPositionCallback);
+    ///
 
     /// Imgui Session
     IMGUI_CHECKVERSION();
@@ -116,7 +101,7 @@ int main()
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(display.getWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
     /// end of Imgui Session
 
@@ -127,11 +112,27 @@ int main()
          0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
          0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
         -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+
+
     };
 
     unsigned int indices[] = {
         0, 1, 2,
-        0, 2, 3
+        0, 2, 3,
+        1, 2, 4,
+        2, 4, 5,
+        4, 5, 6,
+        5, 6, 7,
+        3, 7, 0,
+        0, 6, 7,
+        2, 3, 7,
+        2, 5, 7,
+        0, 1, 6,
+        1, 4, 6
     };
 
     unsigned int VAO, VBO, IBO;
@@ -169,13 +170,7 @@ int main()
     Texture texture(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\mew.jpg");
     texture.loadTextureA();
 
-    ///
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);
-    glm::vec3 target = glm::vec3(0.0f, 0.0f, -1.0f);
-    Camera camera(cameraPos, target);
-    glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f, 100.0f);
-    ///
-
+  
 
     ///
    /* glfwSetKeyCallback(window, &Camera::keyCallback);
@@ -188,24 +183,29 @@ int main()
     ///
     float angle = 0.0f;
 
-    while(!glfwWindowShouldClose(window))
+    while(!glfwWindowShouldClose(display.getWindow()))
     {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        display.clearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        display.clear();
 
         /// Input
-        if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if(glfwGetKey(display.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
-            glfwSetWindowShouldClose(window, true);        
+            glfwSetWindowShouldClose(display.getWindow(), true);
         }
 
-        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        if(glfwGetKey(display.getWindow(), GLFW_KEY_R) == GLFW_PRESS)
         {
             shader.reload();
             loadFileIntoBuffer(vs_filename, vertexShaderBuffer);
             loadFileIntoBuffer(fs_filename, fragmentShaderBuffer);
         }
-        
+      
+        if (glfwGetKey(display.getWindow(), GLFW_KEY_M) == GLFW_PRESS)
+        {
+            camera.flipDislodgeMouse();
+        }
+
         ///
 
         double currentSeconds = glfwGetTime();
@@ -217,7 +217,7 @@ int main()
         glm::mat4 wvp(1.0f);
         glm::mat4 modelTransform(1.0f);
 
-        //angle += 50.5f * (float)deltaTime;
+        angle += 50.5f * (float)deltaTime;
 
         modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
         wvp = projection * camera.getLookAt() * modelTransform;
@@ -225,12 +225,12 @@ int main()
         
         texture.use(GL_TEXTURE0);
         shader.bind();
-        shader.setInt("textureSampler", 0);
+        //shader.setInt("textureSampler", 0);
         shader.setMat4("wvp", wvp);
 
         glBindVertexArray(VAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
@@ -256,7 +256,7 @@ int main()
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         ///
 
-        glfwSwapBuffers(window);
+        display.swapBuffers();
         glfwPollEvents();
     }
 
@@ -267,7 +267,5 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     return 0;    
 }

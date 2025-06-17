@@ -31,6 +31,9 @@ public:
 
 	glm::vec3 getTarget() { return _target; };
 
+	bool getDislodgeMouse() { return _dislodgeMouse; }
+	void flipDislodgeMouse() { _dislodgeMouse = !_dislodgeMouse; }
+
 private:
 	bool keys[1024];
 	glm::vec3 _localPosition;

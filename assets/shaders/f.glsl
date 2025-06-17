@@ -10,8 +10,8 @@ in vec2 texCoords;
 void main()
 {
     //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    //fragColor = vec4(posColor, 1.0);
-    //fragColor = texture(textureSampler, texCoords);
-    fragColor = vec4(posColor, 1.0) * texture(textureSampler, texCoords);
+    fragColor = vec4(posColor, 1.0);
+    //texture(textureSampler, texCoords);
+    //fragColor = vec4(posColor, 1.0) * texture(textureSampler, texCoords);
     //fragColor = texture(textureSampler, texCoords) * vec4(0.0, 0.5, 0.5, 1.0);
 }
