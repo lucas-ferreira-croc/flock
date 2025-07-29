@@ -25,7 +25,6 @@ public:
 
 	int getBufferWidth() { return _bufferWidth; };
 	int getBufferHeight() { return _bufferHeight; };
-
 private:
 	GLFWwindow* window;
 

@@ -6,10 +6,10 @@ project(flock LANGUAGES CXX)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
 
-    # Caminho para binário final (flock.exe)
+    # Caminho para binï¿½rio final (flock.exe)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin/${OUTPUTCONFIG}/$<PLATFORM_ID>)
 
-    # Caminho para arquivos intermediários (obj, etc)
+    # Caminho para arquivos intermediï¿½rios (obj, etc)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
     set(CMAKE_PDB_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER}     ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
@@ -41,6 +41,11 @@ set(TEXTURE_SOURCE
     src/texture/texture.hpp
 )
 
+set(GAME_SOURCE
+    src/game/game.cpp
+    src/game/game.hpp
+)
+
 set(UI_SOURCE
     src/ui/imgui_config.hpp
 )
@@ -56,7 +61,9 @@ set(IMGUI_SOURCE
 
 set(SHADERS_SOURCE
 	assets/shaders/f.glsl
-	assets/shaders/v.glsl
+    assets/shaders/v.glsl
+    assets/shaders/raymarch_fragment.glsl
+    assets/shaders/raymarch_vertex.glsl
 )
 
 
@@ -67,6 +74,7 @@ set(GLAD_SOURCE
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/render PREFIX "src/render" FILES ${RENDER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/texture PREFIX "src/texture" FILES ${TEXTURE_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FILES ${IMGUI_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/glad PREFIX "deps/glad" FILES ${GLAD_SOURCE})
@@ -81,6 +89,7 @@ add_executable(flock
  	${TEXTURE_SOURCE}
 	${GLAD_SOURCE}
 	${SHADERS_SOURCE}
+    ${GAME_SOURCE}
 )
 
 target_include_directories(flock PRIVATE 

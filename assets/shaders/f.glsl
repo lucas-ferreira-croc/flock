@@ -9,7 +9,7 @@ in vec2 texCoords;
 
 void main()
 {
-    //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    //fragColor = vec4(1.0, 0.0, 1.0, 1.0);
     fragColor = vec4(posColor, 1.0);
     //texture(textureSampler, texCoords);
     //fragColor = vec4(posColor, 1.0) * texture(textureSampler, texCoords);
