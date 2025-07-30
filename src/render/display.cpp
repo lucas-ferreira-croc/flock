@@ -1,4 +1,5 @@
 #include "display.hpp"
+#include "log/logger.hpp"
 #include <iostream>
 #include <vector>
 
@@ -18,7 +19,7 @@ void Display::initializeWindow()
 {
 	if (!glfwInit())
 	{
-		std::cout << "GLFW Failed to init!" << std::endl;
+		Logger::err("GLFW Failed to init!");
 		glfwTerminate();
 
 		return;
@@ -34,7 +35,7 @@ void Display::initializeWindow()
 
 	if (!window)
 	{
-		std::cout << "GLFW failed to create window!" << std::endl;
+		Logger::err("GLFW failed to create window!");
 		glfwTerminate();
 		return;
 	}
@@ -71,7 +72,7 @@ void Display::swapBuffers()
 	glfwSwapBuffers(window);
 }
 
-void Display::clearColor(int r, int g, int b, int a)
+void Display::clearColor(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
 }

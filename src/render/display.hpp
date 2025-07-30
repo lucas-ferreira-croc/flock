@@ -16,7 +16,7 @@ public:
 
 	bool isRunning() { return _isRunning; };
 
-	void clearColor(int r, int g, int b, int a);
+	void clearColor(float r, float g, float b, float a);
 	void clear();
 
 	bool shouldClose();

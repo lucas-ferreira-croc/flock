@@ -12,7 +12,7 @@ public:
 
 	glm::mat4 getLookAt();
 	void calculateLookAt();
-	void update(double deltaTime);
+	void update(double _deltaTime);
 
 	double getXpos() {
 		return _xpos;

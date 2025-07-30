@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     Game game;
     game.initialize();
     game.run();
-    game.Destroy();
+    game.destroy();
     
     return 0;    
 }

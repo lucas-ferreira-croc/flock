@@ -5,7 +5,7 @@
 #include <iostream>
 
 Camera::Camera(glm::vec3 position, glm::vec3 target)
-	: position(position), _target(target), _speed(.5f), _yawSpeed(.5f), _camYawAngle(0.0f), _camPitchAngle(0.0f),
+	: position(position), _target(target), _speed(5.0f), _yawSpeed(5.0f), _camYawAngle(0.0f), _camPitchAngle(0.0f),
 	_previousXpos(0.0f), _previousYpos(0.0), _xpos(0.0f), _ypos(0.0f)
 {
 	_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(_camYawAngle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -33,7 +33,7 @@ void Camera::calculateLookAt()
 	_view = glm::lookAt(position, position + _target, cameraUp);
 }
 
-void Camera::update(double deltaTime)
+void Camera::update(double _deltaTime)
 {
     bool cam_moved = false;
 
@@ -44,43 +44,43 @@ void Camera::update(double deltaTime)
 
     if (keys[GLFW_KEY_A])
     {
-        position -= right * (_speed * (float)deltaTime);
+        position -= right * (_speed * (float)_deltaTime);
         cam_moved = true;
     }
     if (keys[GLFW_KEY_D])
     {
-        position += right * (_speed * (float)deltaTime);
+        position += right * (_speed * (float)_deltaTime);
         cam_moved = true;
     }
     if (keys[GLFW_KEY_W])
     {
-        position += forward * (_speed * (float)deltaTime);
+        position += forward * (_speed * (float)_deltaTime);
         cam_moved = true;
     }
     if (keys[GLFW_KEY_S])
     {
-        position -= forward * (_speed * (float)deltaTime);
+        position -= forward * (_speed * (float)_deltaTime);
         cam_moved = true;
     }
     if (keys[GLFW_KEY_Q])
     {
-        position.y += _speed * (float)deltaTime;
+        position.y += _speed * (float)_deltaTime;
         cam_moved = true;
     }
     if (keys[GLFW_KEY_E])
     {
-        position.y -= _speed * (float)deltaTime;
+        position.y -= _speed * (float)_deltaTime;
         cam_moved = true;
     }
 
     if (keys[GLFW_KEY_LEFT])
     {
-        _camYawAngle += _yawSpeed * deltaTime;
+        _camYawAngle += _yawSpeed * _deltaTime;
         cam_moved = true;
     }
     if (keys[GLFW_KEY_RIGHT])
     {
-        _camYawAngle -= _yawSpeed * deltaTime;
+        _camYawAngle -= _yawSpeed * _deltaTime;
         cam_moved = true;
     }
 

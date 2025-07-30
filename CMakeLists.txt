@@ -50,6 +50,11 @@ set(UI_SOURCE
     src/ui/imgui_config.hpp
 )
 
+set(LOGGER_SOURCE
+    src/log/logger.cpp   
+    src/log/logger.hpp   
+)
+
 set(IMGUI_SOURCE
 	deps/imgui/imgui.cpp
     deps/imgui/imgui_draw.cpp
@@ -62,10 +67,7 @@ set(IMGUI_SOURCE
 set(SHADERS_SOURCE
 	assets/shaders/f.glsl
     assets/shaders/v.glsl
-    assets/shaders/raymarch_fragment.glsl
-    assets/shaders/raymarch_vertex.glsl
 )
-
 
 set(GLAD_SOURCE
     deps/glad/src/gl.c
@@ -74,6 +76,7 @@ set(GLAD_SOURCE
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/render PREFIX "src/render" FILES ${RENDER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/texture PREFIX "src/texture" FILES ${TEXTURE_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/log PREFIX "src/log" FILES ${LOGGER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FILES ${IMGUI_SOURCE})
@@ -89,6 +92,7 @@ add_executable(flock
  	${TEXTURE_SOURCE}
 	${GLAD_SOURCE}
 	${SHADERS_SOURCE}
+    ${LOGGER_SOURCE}
     ${GAME_SOURCE}
 )
 

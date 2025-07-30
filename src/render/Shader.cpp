@@ -1,4 +1,5 @@
 #include "render/shader.hpp"
+#include "log/logger.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -137,7 +138,7 @@ void Shader::compile(const char* vertex_code, const char* fragment_code)
 	id = glCreateProgram();
 
 	if (!id) {
-		std::cout << "ERROR CREATING SHADER PROGRAM!" << std::endl;
+		Logger::err("ERROR CREATING SHADER PROGRAM!");
 		return;
 	}
 
@@ -153,7 +154,9 @@ void Shader::compile(const char* vertex_code, const char* fragment_code)
 	if (!result)
 	{
 		glGetProgramInfoLog(id, sizeof(error_log), NULL, error_log);
-		std::cout << "ERRROR LINKING PROGRAM: " << error_log << std::endl;
+		Logger::err("ERRROR LINKING PROGRAM: ");
+		Logger::err(error_log);
+
 		return;
 	}
 
@@ -163,7 +166,8 @@ void Shader::compile(const char* vertex_code, const char* fragment_code)
 	if (!result)
 	{
 		glGetProgramInfoLog(id, sizeof(error_log), NULL, error_log);
-		std::cout << "ERRROR VALIDATING PROGRAM: " << error_log << std::endl;
+		Logger::err("ERRROR VALIDATING PROGRAM: ");
+		Logger::err(error_log);
 		return;
 	}
 }
@@ -189,7 +193,9 @@ void Shader::add(const char* shader_code, GLenum shader_type)
 		std::string shader_type_name = shader_type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT";
 
 		glGetShaderInfoLog(shader, sizeof(error_log), NULL, error_log);
-		std::cout << "ERRROR COMPILING THE " << shader_type << " SHADER: " << error_log << std::endl;
+		Logger::err("ERRROR COMPILING THE " + shader_type);
+		Logger::err(" SHADER: ");
+		Logger::err(error_log);
 		return;
 	}
 

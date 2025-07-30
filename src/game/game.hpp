@@ -17,18 +17,21 @@ public:
     ~Game();
 
     void initialize();
+    void setup();
+
     void run();
-    void ProcessInput();
+    void processInput();
     void update();
-    void Render();
-    void Destroy();
+    void render();
+    void destroy();
 
 
 
 private:
     const int WINDOW_WIDTH = 1600;
     const int WINDOW_HEIGHT = 1200;
-    const double FIXED_TIMESTEP = 1.0 / 60.0;
+    const int FPS = 60;
+    const double FIXED_TIMESTEP = 1.0 / FPS;
 
     std::shared_ptr<Camera> _camera;
     std::shared_ptr<Display> _display;
@@ -41,7 +44,7 @@ private:
 
     //legacy code, to be removed
     float angle = 0.0f;
-    double deltaTime;
+    double _deltaTime;
 
     unsigned int VAO, VBO, IBO;
 };

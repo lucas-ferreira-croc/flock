@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "ui/imgui_config.hpp"
+#include "log/logger.hpp"
 
 
 Game::Game()
@@ -26,7 +27,7 @@ void Game::initialize()
     _display = std::make_shared<Display>(WINDOW_WIDTH, WINDOW_HEIGHT);
     _display->initializeWindow();
 
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
     glm::vec3 target = glm::vec3(0.0f, 0.0f, -1.0f);
     _camera = std::make_shared<Camera>(cameraPos, target);
     projection = glm::perspective(glm::radians(90.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f, 100.0f);
@@ -58,10 +59,13 @@ void Game::initialize()
     ImGui_ImplOpenGL3_Init("#version 330");
     /// end of Imgui Session
 
-    // dt
-    //previousSeconds = glfwGetTime();
 
     // opengl code
+   
+}
+
+void Game::setup()
+{
     float vertices[] = {
 
         // x     y      z    r    g     b      u     v
@@ -119,20 +123,23 @@ void Game::initialize()
 
     _shader.createFromFile(vs_filename, fs_filename);
     previousSeconds = glfwGetTime();
-    /*_textures.push_back(std::make_shared<Texture>(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\mew.jpg"));
-    _textures.at(0)->loadTextureA();*/
+    //_textures.push_back(std::make_shared<Texture>(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\chariz.png"));
+    //_textures.at(0)->loadTextureA();
 }
 
 void Game::run()
 {
+    setup();
+    Logger::log("log");
+    Logger::err("error");
     while (!glfwWindowShouldClose(_display->getWindow())) {
-        ProcessInput();
+        processInput();
         update();
-        Render();
+        render();
     }
 }
 
-void Game::ProcessInput()
+void Game::processInput()
 {
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
@@ -146,31 +153,30 @@ void Game::ProcessInput()
 }
 void Game::update()
 {
-    /*double currentSeconds = glfwGetTime();
-    double deltaTime = currentSeconds - previousSeconds;
-    previousSeconds = currentSeconds;
-    _camera->update(deltaTime);*/
-    ///
-
     double currentSeconds = glfwGetTime();
-    deltaTime = currentSeconds - previousSeconds;
+    _deltaTime = currentSeconds - previousSeconds;
+    previousSeconds = currentSeconds;
 
-    if (deltaTime < FIXED_TIMESTEP) {
-        double timeToSleep = FIXED_TIMESTEP - deltaTime;
+    if (_deltaTime < FIXED_TIMESTEP) {
+        double timeToSleep = FIXED_TIMESTEP - _deltaTime;
 
         std::this_thread::sleep_for(std::chrono::duration<double>(timeToSleep));
 
         currentSeconds = glfwGetTime();
     }
-    _camera->update(deltaTime);
+    _camera->update(_deltaTime);
 
 }
-void Game::Render()
+void Game::render()
 {
-    _display->clearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    _display->clearColor(0.5f, 0.5f, 0.5f, 1.0f); 
+
     _display->clear();
 
-    angle += 0.5f * (float)deltaTime;
+    if (angle <= 360)
+        angle += 60.0f * (float)_deltaTime;
+    else
+        angle = 0.0f;
 
     glm::mat4 wvp(1.0f);
      glm::mat4 modelTransform(1.0f);
@@ -179,7 +185,6 @@ void Game::Render()
     wvp = projection * _camera->getLookAt() * modelTransform;
     ///
     
-  
     //_textures.at(0)->use(GL_TEXTURE0);
     _shader.bind();
     _shader.setMat4("wvp", wvp);
@@ -190,23 +195,25 @@ void Game::Render()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    _display->swapBuffers();
+  
 
-
-  /*  /// ImGui
+  //// ImGui
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-
+    ImGui::Begin("Debug");
     ImGui::End();
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+    ImGui::render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    _display->swapBuffers();
+
     ///
 }
 
-void Game::Destroy(){
+void Game::destroy(){
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
