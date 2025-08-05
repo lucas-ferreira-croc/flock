@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "ecs/ecs.hpp"
 #include "ui/imgui_config.hpp"
 #include "render/display.hpp"
 #include "render/camera.hpp"

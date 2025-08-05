@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "ecs/ecs.hpp"
 
 #include <thread>
 #include <chrono>
@@ -66,6 +67,11 @@ void Game::initialize()
 
 void Game::setup()
 {
+    //Entity square = registry.createEntity;
+    // square.addComponent<TransformComponent>();
+    // square.addComponent<BoxColliderComponent>();
+    // square.addComponent<BoxGeometryComponent>();
+
     float vertices[] = {
 
         // x     y      z    r    g     b      u     v
@@ -130,8 +136,6 @@ void Game::setup()
 void Game::run()
 {
     setup();
-    Logger::log("log");
-    Logger::err("error");
     while (!glfwWindowShouldClose(_display->getWindow())) {
         processInput();
         update();
@@ -181,7 +185,8 @@ void Game::render()
     glm::mat4 wvp(1.0f);
      glm::mat4 modelTransform(1.0f);
     modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-
+    //movementSystem.update();
+    //CollissionSystem.update();
     wvp = projection * _camera->getLookAt() * modelTransform;
     ///
     

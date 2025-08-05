@@ -27,6 +27,20 @@ add_subdirectory(deps/glfw)
 set(MAIN_SOURCE
     src/main.cpp
 )
+
+set(ECS_SOURCE
+    src/ecs/ecs.cpp
+    src/ecs/ecs.hpp
+)
+
+set(COMPONENTS_SOURCE
+    src/ecs/components/transform_component.hpp
+)
+
+set(SYSTEMS_SOURCE
+    src/ecs/systems/movement_system.hpp
+)
+
 set(RENDER_SOURCE
     src/render/shader.cpp
     src/render/shader.hpp
@@ -76,6 +90,11 @@ set(GLAD_SOURCE
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/render PREFIX "src/render" FILES ${RENDER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/texture PREFIX "src/texture" FILES ${TEXTURE_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ecs PREFIX "src/ecs" FILES ${ECS_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ecs/components PREFIX "src/ecs/components" FILES ${COMPONENTS_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ecs/systems PREFIX "src/ecs/systems" FILES ${SYSTEMS_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/log PREFIX "src/log" FILES ${LOGGER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
@@ -94,6 +113,7 @@ add_executable(flock
 	${SHADERS_SOURCE}
     ${LOGGER_SOURCE}
     ${GAME_SOURCE}
+    ${ECS_SOURCE}
 )
 
 target_include_directories(flock PRIVATE 
