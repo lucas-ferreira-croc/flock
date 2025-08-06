@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include "ecs/ecs.hpp"
 
 #include <thread>
 #include <chrono>
@@ -12,15 +11,16 @@
 #include "ui/imgui_config.hpp"
 #include "log/logger.hpp"
 
+#include "ecs/components/transform_component.hpp"
+#include "ecs/components/rigid_body_component.hpp"
 
 Game::Game()
 {
-
+    _registry = std::make_unique<Registry>();
 }
 
 Game::~Game()
 {
-    
 }
 
 void Game::initialize()
@@ -67,7 +67,10 @@ void Game::initialize()
 
 void Game::setup()
 {
-    //Entity square = registry.createEntity;
+    Entity square = _registry->createEntity();
+    square.addComponent<TransformComponent>( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    square.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 1.0f, 1.0f));
+    square.removeComponent<TransformComponent>();
     // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();
     // square.addComponent<BoxGeometryComponent>();
