@@ -6,10 +6,10 @@ project(flock LANGUAGES CXX)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
 
-    # Caminho para bin�rio final (flock.exe)
+    # Caminho para binario final (flock.exe)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin/${OUTPUTCONFIG}/$<PLATFORM_ID>)
 
-    # Caminho para arquivos intermedi�rios (obj, etc)
+    # Caminho para arquivos intermediarios (obj, etc)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
     set(CMAKE_PDB_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER}     ${CMAKE_SOURCE_DIR}/bin-int/${OUTPUTCONFIG}/$<PLATFORM_ID>)
@@ -35,6 +35,7 @@ set(ECS_SOURCE
 
 set(COMPONENTS_SOURCE
     src/ecs/components/transform_component.hpp
+    src/ecs/components/rigid_body_component.hpp
 )
 
 set(SYSTEMS_SOURCE
@@ -48,6 +49,10 @@ set(RENDER_SOURCE
     src/render/camera.hpp
     src/render/display.cpp
     src/render/display.hpp
+    src/render/mesh.cpp
+    src/render/mesh.hpp
+    src/render/model.cpp
+    src/render/model.hpp
 )
 
 set(TEXTURE_SOURCE
@@ -116,6 +121,12 @@ add_executable(flock
     ${ECS_SOURCE}
 )
 
+add_custom_command(TARGET flock POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/deps/assimp/bin/assimp-vc143-mt.dll"
+        "$<TARGET_FILE_DIR:flock>"
+)
+
 target_include_directories(flock PRIVATE 
     src
 	deps
@@ -124,6 +135,11 @@ target_include_directories(flock PRIVATE
 	deps/glfw/include
 	deps/glad/include
 	deps/glm
+    deps/assimp/include
 )
 
-target_link_libraries(flock PRIVATE glfw Opengl32)
+target_link_directories(flock PRIVATE
+    deps/assimp/lib/Release
+)
+
+target_link_libraries(flock PRIVATE glfw Opengl32 assimp-vc143-mt)

@@ -11,8 +11,12 @@
 #include "ui/imgui_config.hpp"
 #include "log/logger.hpp"
 
+
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/rigid_body_component.hpp"
+
+#include "ecs/systems/render_system.hpp"
+#include "ecs/systems/movement_system.hpp"
 
 Game::Game()
 {
@@ -67,10 +71,15 @@ void Game::initialize()
 
 void Game::setup()
 {
+    model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\cube.fbx");
+
+    _registry->addSystem<MovementSystem>();
+    _registry->addSystem<RenderSystem>();
+
     Entity square = _registry->createEntity();
-    square.addComponent<TransformComponent>( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    square.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 1.0f, 1.0f));
-    square.removeComponent<TransformComponent>();
+    square.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    square.addComponent<RigidBodyComponent>(glm::vec3(10.0f, 10.0f, 10.0f));
+    
     // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();
     // square.addComponent<BoxGeometryComponent>();
@@ -172,7 +181,9 @@ void Game::update()
         currentSeconds = glfwGetTime();
     }
     _camera->update(_deltaTime);
-
+    
+    _registry->getSystem<MovementSystem>().Update(_deltaTime);
+    _registry->update();
 }
 void Game::render()
 {
@@ -186,7 +197,8 @@ void Game::render()
         angle = 0.0f;
 
     glm::mat4 wvp(1.0f);
-     glm::mat4 modelTransform(1.0f);
+    glm::mat4 modelTransform(1.0f);
+
     modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
     //movementSystem.update();
     //CollissionSystem.update();
@@ -196,12 +208,12 @@ void Game::render()
     //_textures.at(0)->use(GL_TEXTURE0);
     _shader.bind();
     _shader.setMat4("wvp", wvp);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    model->render(_shader);
+    // glBindVertexArray(VAO);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindVertexArray(0);
 
   
 

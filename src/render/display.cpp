@@ -31,7 +31,7 @@ void Display::initializeWindow()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	window = glfwCreateWindow(_windowWidth, _windowHeight, "Anubis", NULL, NULL);
+	window = glfwCreateWindow(_windowWidth, _windowHeight, "flock", NULL, NULL);
 
 	if (!window)
 	{

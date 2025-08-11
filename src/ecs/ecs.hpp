@@ -35,8 +35,9 @@ class Entity
 {
 public:
     Entity(int id) : _id(id) {};
+    Entity(const Entity& entity) = default;
     int getId() const;
-    class Registry* registry;
+
 
     template <typename TComponent, typename ...TArgs> void addComponent(TArgs&& ...args);
     template <typename TComponent> void removeComponent();
@@ -64,6 +65,9 @@ public:
     {
         return _id > other._id;
     }
+
+    class Registry* registry;
+
 private:
     int _id;
 };
@@ -90,14 +94,14 @@ bool Entity::hasComponent() const
 template <typename TComponent>
 TComponent& Entity::getComponent() const
 {
-    retun registry->getComponent<TComponent>(*this);
+    return registry->getComponent<TComponent>(*this);
 }
 
 /// process entities with given signature
 class System{
 public:
     System() = default;
-    virtual ~System() = default;
+    ~System() = default;
 
     void addEntityToSystem(Entity entity);
     void removeEntityFromSystem(Entity entity);
@@ -123,14 +127,14 @@ void System::requireComponent()
 class IPool
 {
 public:
-    virtual ~IPool(){}
+    virtual ~IPool() {}
 };
 
 template<typename T>
 class Pool : public IPool
 {
 public:
-    Pool(int size = 100)
+    Pool(int size = 0)
     {
         data.resize(size);
     }
@@ -149,7 +153,7 @@ public:
 
     void set(int index, T object) { data[index] = object; }
 
-    T& get(int index) { return static_cast<T>(data.at(index)); }
+    T& get(int index) { return static_cast<T&>(data.at(index)); }
 
     T& operator [](unsigned int index) { return data[index]; }
 private:
@@ -200,8 +204,8 @@ private:
 template<typename TSystem> 
 TSystem& Registry::getSystem() const 
 {
-    auto system = systems.find(std::type_index(typeid(TSystem)));
-    return *std::static_cast<TSystem>(system->second);
+    auto system = _systems.find(std::type_index(typeid(TSystem)));
+    return *(std::static_pointer_cast<TSystem>(system->second));
 }
 
 template<typename TSystem> 
@@ -239,7 +243,7 @@ TComponent& Registry::getComponent(Entity entity) const
     auto componentId = Component<TComponent>::getId();
     auto entityId = entity.getId();
 
-    auto componentPool = std::static_pointer_cast<Pool<TComponent>> _componentPools[componentId];
+    auto componentPool = std::static_pointer_cast<Pool<TComponent>>(_componentPools[componentId]);
     return componentPool->get(entityId);
 }
 
@@ -264,7 +268,7 @@ void Registry::addComponent(Entity entity, TArgs&& ...args)
 
     if(entityId >= componentPool->getSize())
     {
-        componentPool->resize(_numEntities);
+        componentPool->resize(entityId + 1);
     }
 
     TComponent newComponent(std::forward<TArgs>(args)...);

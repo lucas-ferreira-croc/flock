@@ -39,7 +39,7 @@ Entity Registry::createEntity()
     int entityId = _numEntities++;
     Entity entity(entityId);
     entity.registry = this;
-    
+
     _entitiesToBeAdded.insert(entity);
     if(entityId >= _entityComponentSignatures.size())
     {
@@ -58,7 +58,7 @@ void Registry::addEntityToSystems(Entity entity)
     {
         const auto& systemComponentSignature = system.second->getComponentSignature();
 
-        bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature ? true : false;
+        bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
         if(isInterested)
         {
             system.second->addEntityToSystem(entity);

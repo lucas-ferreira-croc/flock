@@ -10,6 +10,7 @@
 #include "render/camera.hpp"
 #include "texture/texture.hpp"
 #include "render/shader.hpp"
+#include "render/model.hpp"
 
 class Game 
 {
@@ -49,6 +50,8 @@ private:
     double _deltaTime;
 
     unsigned int VAO, VBO, IBO;
+
+    std::unique_ptr<Model> model;
 };
 
 #endif
