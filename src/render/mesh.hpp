@@ -6,18 +6,23 @@
 
 #include <glm/glm.hpp>
 #include "render/shader.hpp"
+#include "texture/texture.hpp"
 
 struct Vertex
 {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texCoords;
+    glm::vec3 Tangent;
+    glm::vec3 Bitangent;
 };
 
 struct MeshTexture
 {
     unsigned int id;
     std::string type;
+    std::string path;
+    std::shared_ptr<Texture> texture;
 };
 
 class Mesh

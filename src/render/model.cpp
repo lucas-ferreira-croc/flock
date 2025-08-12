@@ -1,5 +1,6 @@
 #include "model.hpp"
 
+#include "texture/texture.hpp"
 
 void Model::render(Shader& shader)
 {
@@ -19,8 +20,7 @@ void Model::loadModel(std::string path)
         return;
     }
 
-    _directory = path.substr(0, path.find_last_of('/'));
-
+    _directory = path.substr(0, path.find_last_of('\\'));
     processNode(scene->mRootNode, scene);
 }
 
@@ -44,11 +44,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         std::vector<unsigned int> indices;
         std::vector<MeshTexture> textures;
 
-        // walk through each of the mesh's vertices
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Vertex vertex;
-            glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+            glm::vec3 vector; 
             // positions
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;
@@ -63,7 +62,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
                 vertex.normal = vector;
             }
             // texture coordinates
-            if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+            if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates
             {
                 glm::vec2 vec;
                 // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
@@ -72,50 +71,94 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
                 vec.y = mesh->mTextureCoords[0][i].y;
                 vertex.texCoords = vec;
                 // tangent
-                vector.x = mesh->mTangents[i].x;
-                vector.y = mesh->mTangents[i].y;
-                vector.z = mesh->mTangents[i].z;
-                //vertex.Tangent = vector;
-                // bitangent
-                vector.x = mesh->mBitangents[i].x;
-                vector.y = mesh->mBitangents[i].y;
-                vector.z = mesh->mBitangents[i].z;
-                //vertex.Bitangent = vector;
+                // vector.x = mesh->mTangents[i].x;
+                // vector.y = mesh->mTangents[i].y;
+                // vector.z = mesh->mTangents[i].z;
+                // vertex.Tangent = vector;
+                // // bitangent
+                // vector.x = mesh->mBitangents[i].x;
+                // vector.y = mesh->mBitangents[i].y;
+                // vector.z = mesh->mBitangents[i].z;
+                // vertex.Bitangent = vector;
             }
             else
                 vertex.texCoords = glm::vec2(0.0f, 0.0f);
 
             vertices.push_back(vertex);
         }
-        // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
         for(unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
             aiFace face = mesh->mFaces[i];
-            // retrieve all indices of the face and store them in the indices vector
             for(unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);        
         }
         // process materials
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
-        // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-        // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-        // Same applies to other texture as the following list summarizes:
-        // diffuse: texture_diffuseN
-        // specular: texture_specularN
-        // normal: texture_normalN
-
-        // vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-        // textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        // // 2. specular maps
-        // vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-        // textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-        // // 3. normal maps
-        // std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-        // textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-        // // 4. height maps
-        // std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-        // textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         
+        if(mesh->mMaterialIndex >= 0)
+        {
+            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
+            // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
+            // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
+            // Same applies to other texture as the following list summarizes:
+            // diffuse: texture_diffuseN
+            // specular: texture_specularN
+            // normal: texture_normalN
+    
+            std::vector<MeshTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+            // // 2. specular maps
+            std::vector<MeshTexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            // // 3. normal maps
+            std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+            // // 4. height maps
+            std::vector<MeshTexture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+            textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+        }
+
         // return a mesh object created from the extracted mesh data
         return Mesh(vertices, indices, textures);
+}
+
+std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName)
+{
+    std::vector<MeshTexture> textures;
+    for(unsigned int i = 0; i < material->GetTextureCount(type); i++)
+    {
+        aiString str;
+        material->GetTexture(type, i, &str);
+        bool skip = false;
+        for(unsigned int j = 0; j < _texturesLoaded.size(); j++)
+        {
+            if(std::strcmp(_texturesLoaded[j].path.data(), str.C_Str()) == 0)
+            {
+                textures.push_back(_texturesLoaded[j]);
+                skip = true;
+                break;
+            }
+        }
+        if(!skip)
+        {
+            MeshTexture meshTexture;
+            meshTexture.texture = textureFromFile(str.C_Str(), _directory);
+            meshTexture.id = meshTexture.texture->textureObject;
+            meshTexture.type = typeName;
+            meshTexture.path = str.C_Str();
+            textures.push_back(meshTexture);
+            _texturesLoaded.push_back(meshTexture);
+        }
+    }
+
+    return textures;
+}
+
+std::shared_ptr<Texture> Model::textureFromFile(const char* path, const std::string& directory)
+{
+    std::string filename = std::string(path);
+    filename = directory + '\\' + filename;
+
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(GL_TEXTURE_2D, filename);
+    texture->loadTextureA();
+    return texture;
 }

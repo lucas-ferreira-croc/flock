@@ -26,11 +26,14 @@ public:
 private:
     std::vector<Mesh> _meshes;
     std::string _directory;
+    std::vector<MeshTexture> _texturesLoaded;
 
     void loadModel(std::string path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    //std::vector<Texture> loadMaterialTexture(aiMaterial* material, aiTextureType type, std::string typeName);
+
+    std::vector<MeshTexture> loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName);
+    std::shared_ptr<Texture> textureFromFile(const char* path, const std::string& directory);
 };
 
 #endif

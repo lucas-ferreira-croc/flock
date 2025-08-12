@@ -71,8 +71,9 @@ void Game::initialize()
 
 void Game::setup()
 {
-    model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\cube.fbx");
-
+    
+    model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
 
@@ -169,6 +170,7 @@ void Game::processInput()
 }
 void Game::update()
 {
+
     double currentSeconds = glfwGetTime();
     _deltaTime = currentSeconds - previousSeconds;
     previousSeconds = currentSeconds;

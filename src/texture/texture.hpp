@@ -20,7 +20,7 @@ public:
 	std::string getFilepath() { return _filepath; };
 	
 	GLenum textureTarget;
-	unsigned int TextureObject;
+	unsigned int textureObject;
 private:
 	int _width, _height, _bitDepth;
 

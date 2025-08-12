@@ -6,9 +6,8 @@
 
 #include <iostream>
 
-
 Texture::Texture()
-	: _width(0), _height(0), _bitDepth(0), _filepath("")
+	: _width(0), _height(0), _bitDepth(0), _filepath(""), textureTarget(GL_TEXTURE_2D)
 {
 }
 
@@ -46,8 +45,10 @@ bool Texture::loadTexture()
 		}
 	}
 
-	glGenTextures(1, &TextureObject);
-	glBindTexture(GL_TEXTURE_2D, TextureObject);
+	Logger::log("succesffuly loaded texture: " + _filepath);
+
+	glGenTextures(1, &textureObject);
+	glBindTexture(GL_TEXTURE_2D, textureObject);
 
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -88,9 +89,8 @@ bool Texture::loadTextureA()
 		}
 	}
 
-
-	glGenTextures(1, &TextureObject);
-	glBindTexture(GL_TEXTURE_2D, TextureObject);
+	glGenTextures(1, &textureObject);
+	glBindTexture(GL_TEXTURE_2D, textureObject);
 
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -131,8 +131,8 @@ bool Texture::loadTextureGrayscale()
 	}
 
 
-	glGenTextures(1, &TextureObject);
-	glBindTexture(GL_TEXTURE_2D, TextureObject);
+	glGenTextures(1, &textureObject);
+	glBindTexture(GL_TEXTURE_2D, textureObject);
 
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -152,13 +152,13 @@ bool Texture::loadTextureGrayscale()
 void Texture::use(GLenum textureUnit)
 {
 	glActiveTexture(textureUnit);
-	glBindTexture(textureTarget, TextureObject);
+	glBindTexture(textureTarget, textureObject);
 }
 
 void Texture::clear()
 {
-	glDeleteTextures(1, &TextureObject);
-	TextureObject = 0;
+	glDeleteTextures(1, &textureObject);
+	textureObject = 0;
 	_width = 0;
 	_height = 0;
 	_bitDepth = 0;
