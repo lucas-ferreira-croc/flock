@@ -36,10 +36,12 @@ set(ECS_SOURCE
 set(COMPONENTS_SOURCE
     src/ecs/components/transform_component.hpp
     src/ecs/components/rigid_body_component.hpp
+    src/ecs/components/mesh_body_component.hpp
 )
 
 set(SYSTEMS_SOURCE
     src/ecs/systems/movement_system.hpp
+    src/ecs/systems/render_system.hpp
 )
 
 set(RENDER_SOURCE

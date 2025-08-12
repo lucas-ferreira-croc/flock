@@ -13,6 +13,7 @@ public:
         requireComponent<TransformComponent>();
         requireComponent<RigidBodyComponent>();
     }
+    
     void Update(double deltaTime)
     {
         for(auto entity : getSystemEntities())

@@ -14,6 +14,7 @@
 
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/rigid_body_component.hpp"
+#include "ecs/components/mesh_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
@@ -72,78 +73,30 @@ void Game::initialize()
 void Game::setup()
 {
     
-    model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
     
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
 
+
+    Entity sphere = _registry->createEntity();
+    sphere.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    sphere.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 0.0f, -5.0f));
+    sphere.addComponent<MeshComponent>(MeshType::SPHERE);
+
     Entity square = _registry->createEntity();
     square.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    square.addComponent<RigidBodyComponent>(glm::vec3(10.0f, 10.0f, 10.0f));
-    
+    square.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
+    square.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
     // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();
     // square.addComponent<BoxGeometryComponent>();
-
-    float vertices[] = {
-
-        // x     y      z    r    g     b      u     v
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-
-
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        0, 2, 3,
-        1, 2, 4,
-        2, 4, 5,
-        4, 5, 6,
-        5, 6, 7,
-        3, 7, 0,
-        0, 6, 7,
-        2, 3, 7,
-        2, 5, 7,
-        0, 1, 6,
-        1, 4, 6
-    };
-
-    glGenVertexArrays(1, &VAO);
-
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
-    //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glm::vec3 modelPosition;
 
     const char* vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     const char* fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
 
     _shader.createFromFile(vs_filename, fs_filename);
     previousSeconds = glfwGetTime();
-    //_textures.push_back(std::make_shared<Texture>(GL_TEXTURE_2D, "C:\\dev\\shader\\flock\\assets\\images\\chariz.png"));
-    //_textures.at(0)->loadTextureA();
 }
 
 void Game::run()
@@ -202,22 +155,7 @@ void Game::render()
     glm::mat4 modelTransform(1.0f);
 
     modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    //movementSystem.update();
-    //CollissionSystem.update();
-    wvp = projection * _camera->getLookAt() * modelTransform;
-    ///
-    
-    //_textures.at(0)->use(GL_TEXTURE0);
-    _shader.bind();
-    _shader.setMat4("wvp", wvp);
-    model->render(_shader);
-    // glBindVertexArray(VAO);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    // glBindVertexArray(0);
-
-  
+    _registry->getSystem<RenderSystem>().Update(_shader, projection, _camera->getLookAt());
 
   //// ImGui
     ImGui_ImplOpenGL3_NewFrame();
