@@ -15,6 +15,7 @@
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/rigid_body_component.hpp"
 #include "ecs/components/mesh_component.hpp"
+#include "ecs/components/shader_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
@@ -70,32 +71,39 @@ void Game::initialize()
    
 }
 
-void Game::setup()
+void Game::loadLevel(int level)
 {
-    
-    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
-    
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
 
 
+    std::string vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
+    std::string fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
+    std::string fs_red_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_red.glsl";
+    
     Entity sphere = _registry->createEntity();
     sphere.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     sphere.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 0.0f, -5.0f));
     sphere.addComponent<MeshComponent>(MeshType::SPHERE);
+    sphere.addComponent<ShaderComponent>(vs_filename, fs_red_filename);
 
     Entity square = _registry->createEntity();
     square.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     square.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
     square.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    square.addComponent<ShaderComponent>(vs_filename, fs_filename);
+
     // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();
     // square.addComponent<BoxGeometryComponent>();
 
-    const char* vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
-    const char* fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
-
     _shader.createFromFile(vs_filename, fs_filename);
+}
+
+void Game::setup()
+{
+    loadLevel(1);
+    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
     previousSeconds = glfwGetTime();
 }
 
@@ -155,7 +163,7 @@ void Game::render()
     glm::mat4 modelTransform(1.0f);
 
     modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    _registry->getSystem<RenderSystem>().Update(_shader, projection, _camera->getLookAt());
+    _registry->getSystem<RenderSystem>().Update(projection, _camera->getLookAt());
 
   //// ImGui
     ImGui_ImplOpenGL3_NewFrame();

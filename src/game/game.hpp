@@ -20,7 +20,8 @@ public:
 
     void initialize();
     void setup();
-
+    void loadLevel(int level);
+    
     void run();
     void processInput();
     void update();

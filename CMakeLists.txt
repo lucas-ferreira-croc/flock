@@ -36,7 +36,8 @@ set(ECS_SOURCE
 set(COMPONENTS_SOURCE
     src/ecs/components/transform_component.hpp
     src/ecs/components/rigid_body_component.hpp
-    src/ecs/components/mesh_body_component.hpp
+    src/ecs/components/mesh_component.hpp
+    src/ecs/components/shader_component.hpp
 )
 
 set(SYSTEMS_SOURCE

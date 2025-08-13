@@ -16,7 +16,6 @@ enum class MeshType
 
 struct MeshComponent
 {
-
     MeshComponent(MeshType meshType = MeshType::BOX)
     {
         std::string path;
