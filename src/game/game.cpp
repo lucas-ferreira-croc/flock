@@ -16,6 +16,7 @@
 #include "ecs/components/rigid_body_component.hpp"
 #include "ecs/components/mesh_component.hpp"
 #include "ecs/components/shader_component.hpp"
+#include "ecs/components/material_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
@@ -77,27 +78,57 @@ void Game::loadLevel(int level)
     _registry->addSystem<RenderSystem>();
 
 
-    std::string vs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
-    std::string fs_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
-    std::string fs_red_filename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_red.glsl";
-    
-    Entity sphere = _registry->createEntity();
-    sphere.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    sphere.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 0.0f, -5.0f));
-    sphere.addComponent<MeshComponent>(MeshType::SPHERE);
-    sphere.addComponent<ShaderComponent>(vs_filename, fs_red_filename);
+    std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
+    std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
+    std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    Entity light = _registry->createEntity();
+    light.addComponent<TransformComponent>(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    //light.addComponent<MeshComponent>(MeshType::BOX);
+    light.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    //light.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    //light.getComponent<ShaderComponent>().addUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    //light.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
 
-    Entity square = _registry->createEntity();
-    square.addComponent<TransformComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    square.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
-    square.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
-    square.addComponent<ShaderComponent>(vs_filename, fs_filename);
 
-    // square.addComponent<TransformComponent>();
+    // Entity sphere = _registry->createEntity();
+    // sphere.addComponent<TransformComponent>(glm::vec3(-2.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    // //sphere.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 0.0f, -5.0f));
+    // sphere.addComponent<MeshComponent>(MeshType::SPHERE);
+    // sphere.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    // sphere.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    // sphere.getComponent<ShaderComponent>().addUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    // sphere.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+
+    Entity backpack = _registry->createEntity();
+    backpack.addComponent<TransformComponent>(glm::vec3(3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    //backpack.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
+    backpack.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    backpack.addComponent<ShaderComponent>(vsFilename, fsFilename);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+
+    Entity teapot = _registry->createEntity();
+    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\teapot.dae");
+    teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    teapot.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    teapot.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+
+
+    Entity plane = _registry->createEntity();
+    plane.addComponent<TransformComponent>(glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(90.0f, 0.0f, 0.0f));
+    plane.addComponent<MeshComponent>(MeshType::PLANE);
+    plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    plane.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
+    plane.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
+    plane.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+
+     // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();
-    // square.addComponent<BoxGeometryComponent>();
-
-    _shader.createFromFile(vs_filename, fs_filename);
+    // square.addComponent<BoxGeometryComponent>()
+    _shader.createFromFile(vsFilename, fsFilename);
 }
 
 void Game::setup()
@@ -128,6 +159,10 @@ void Game::processInput()
     {
         _camera->flipDislodgeMouse();
     }
+
+    if (glfwGetKey(_display->getWindow(), GLFW_KEY_R) == GLFW_PRESS)
+    {
+    }
 }
 void Game::update()
 {
@@ -150,7 +185,7 @@ void Game::update()
 }
 void Game::render()
 {
-    _display->clearColor(0.5f, 0.5f, 0.5f, 1.0f); 
+    _display->clearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 
     _display->clear();
 
@@ -163,7 +198,7 @@ void Game::render()
     glm::mat4 modelTransform(1.0f);
 
     modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    _registry->getSystem<RenderSystem>().Update(projection, _camera->getLookAt());
+    _registry->getSystem<RenderSystem>().Update(projection, _camera);
 
   //// ImGui
     ImGui_ImplOpenGL3_NewFrame();
