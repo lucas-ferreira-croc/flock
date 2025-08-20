@@ -5,6 +5,7 @@
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/mesh_component.hpp"
 #include "ecs/components/shader_component.hpp"
+#include "ecs/components/material_component.hpp"
 
 class RenderSystem : public System
 {
@@ -40,7 +41,7 @@ public:
             shader->setMat4("model", modelTransform);
 
 
-            if(shaderComponent.uniformVec3.find("lightColor") != shaderComponent.uniformVec3.end())
+            if(shaderComponent.uniformVec3.find("light.position") != shaderComponent.uniformVec3.end())
             {
                 for(auto& uniform : shaderComponent.uniformVec3)
                 {
@@ -58,6 +59,15 @@ public:
             //shader shader.setMat4("wvp", wvp);
             
             //shader.setMat4("wvp", wvp);
+
+            if(entity.hasComponent<MaterialComponent>())
+            {
+                auto& material = entity.getComponent<MaterialComponent>();
+                shader->setFloat3("material.ambient", material.ambient);
+                shader->setFloat3("material.diffuse", material.diffuse);
+                shader->setFloat3("material.specular", material.specular);
+                shader->setFloat("material.shininess", material.shininess);
+            }
 
             if(entity.hasComponent<MeshComponent>())
             {

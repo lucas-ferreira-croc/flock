@@ -81,7 +81,10 @@ void Game::loadLevel(int level)
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
     std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
-    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+    glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
+
     Entity light = _registry->createEntity();
     light.addComponent<TransformComponent>(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     //light.addComponent<MeshComponent>(MeshType::BOX);
@@ -104,26 +107,32 @@ void Game::loadLevel(int level)
     backpack.addComponent<TransformComponent>(glm::vec3(3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     //backpack.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
     backpack.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    backpack.addComponent<MaterialComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f);
     backpack.addComponent<ShaderComponent>(vsFilename, fsFilename);
-    backpack.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
-    backpack.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("light.position", light.getComponent<TransformComponent>().position);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("light.ambient", lightAmbient);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("light.diffuse", lightDiffuse);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("light.specular", lightSpecular);
 
     Entity teapot = _registry->createEntity();
     teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\teapot.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
-    teapot.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-    teapot.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
-    teapot.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
-
+    teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 256.0f);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("light.position", light.getComponent<TransformComponent>().position);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("light.ambient", lightAmbient);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("light.diffuse", lightDiffuse);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("light.specular", lightSpecular);
 
     Entity plane = _registry->createEntity();
     plane.addComponent<TransformComponent>(glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(90.0f, 0.0f, 0.0f));
     plane.addComponent<MeshComponent>(MeshType::PLANE);
     plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
-    plane.getComponent<ShaderComponent>().addUniformVec3("lightColor", lightColor);
-    plane.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.5f, 0.31f, 1.0f));
-    plane.getComponent<ShaderComponent>().addUniformVec3("lightPos", light.getComponent<TransformComponent>().position);
+    plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
+    plane.getComponent<ShaderComponent>().addUniformVec3("light.position", light.getComponent<TransformComponent>().position);
+    plane.getComponent<ShaderComponent>().addUniformVec3("light.ambient", lightAmbient);
+    plane.getComponent<ShaderComponent>().addUniformVec3("light.diffuse", lightDiffuse);
+    plane.getComponent<ShaderComponent>().addUniformVec3("light.specular", lightSpecular);
 
      // square.addComponent<TransformComponent>();
     // square.addComponent<BoxColliderComponent>();

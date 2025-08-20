@@ -38,6 +38,7 @@ set(COMPONENTS_SOURCE
     src/ecs/components/rigid_body_component.hpp
     src/ecs/components/mesh_component.hpp
     src/ecs/components/shader_component.hpp
+    src/ecs/components/material_component.hpp
 )
 
 set(SYSTEMS_SOURCE
@@ -56,6 +57,7 @@ set(RENDER_SOURCE
     src/render/mesh.hpp
     src/render/model.cpp
     src/render/model.hpp
+    src/render/light/base_light.hpp
 )
 
 set(TEXTURE_SOURCE
