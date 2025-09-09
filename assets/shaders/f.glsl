@@ -38,22 +38,20 @@ in vec3 normal;
 
 void main()
 {
-    vec3 ambient =  light.ambient * material.ambient;
+    vec3 ambient =  light.ambient * texture(material.texture_diffuse1, texCoords).xyz;
     
     vec3 norm = normalize(normal);
     vec3 lightDirection = normalize(light.position - fragPos);
     float diff = max(dot(norm, lightDirection), 0.0);
-    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * diff * texture(material.texture_diffuse1, texCoords).xyz;
     
     float specularStrentgh = 0.5;
     vec3 viewDirection = normalize(viewPos - fragPos);
     vec3 reflectDirection = reflect(-lightDirection, norm);
 
-    // float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 256);
-    // vec3 specular = specularStrentgh * spec * lightColor;
     float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), material.shininess);
-    vec3 specular = lightColor * (spec * material.specular);
-    vec3 result = (ambient + diffuse + specular) *  vec3(texture(material.texture_diffuse1, texCoords).xyz);
+    vec3 specular = lightColor * spec * texture(material.texture_specular1, texCoords).xyz;
+    vec3 result = (ambient + diffuse + specular);
     
     fragColor = vec4(result, 1.0);
 }

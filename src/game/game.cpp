@@ -20,6 +20,7 @@
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
+#include "ecs/systems/physics_system.hpp"
 
 Game::Game()
 {
@@ -76,7 +77,7 @@ void Game::loadLevel(int level)
 {
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
-
+    _registry->addSystem<PhysicsSystem>(9.8f);
 
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
@@ -123,6 +124,8 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().addUniformVec3("light.ambient", lightAmbient);
     teapot.getComponent<ShaderComponent>().addUniformVec3("light.diffuse", lightDiffuse);
     teapot.getComponent<ShaderComponent>().addUniformVec3("light.specular", lightSpecular);
+    teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE);
+    _registry->getSystem<PhysicsSystem>().AddBody(teapot);
 
     Entity plane = _registry->createEntity();
     plane.addComponent<TransformComponent>(glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(90.0f, 0.0f, 0.0f));
@@ -190,6 +193,7 @@ void Game::update()
     _camera->update(_deltaTime);
     
     _registry->getSystem<MovementSystem>().Update(_deltaTime);
+    _registry->getSystem<PhysicsSystem>().Update(_deltaTime);
     _registry->update();
 }
 void Game::render()

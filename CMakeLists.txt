@@ -39,11 +39,13 @@ set(COMPONENTS_SOURCE
     src/ecs/components/mesh_component.hpp
     src/ecs/components/shader_component.hpp
     src/ecs/components/material_component.hpp
+    src/ecs/components/physics_shape_component.hpp
 )
 
 set(SYSTEMS_SOURCE
     src/ecs/systems/movement_system.hpp
     src/ecs/systems/render_system.hpp
+    src/ecs/systems/physics_system.hpp
 )
 
 set(RENDER_SOURCE
@@ -97,6 +99,15 @@ set(GLAD_SOURCE
     deps/glad/src/gl.c
 )
 
+set(PHYSICS_SOURCE
+    src/physics/body.cpp
+    src/physics/body.hpp
+    src/physics/shape.cpp
+    src/physics/shape.hpp
+    src/physics/world.cpp
+    src/physics/world.hpp
+)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/render PREFIX "src/render" FILES ${RENDER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/texture PREFIX "src/texture" FILES ${TEXTURE_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
@@ -106,6 +117,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ecs/systems PREFIX "src/ecs/sy
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/log PREFIX "src/log" FILES ${LOGGER_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/physics PREFIX "src/physics" FILES ${PHYSICS_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FILES ${IMGUI_SOURCE})
@@ -124,6 +136,7 @@ add_executable(flock
     ${LOGGER_SOURCE}
     ${GAME_SOURCE}
     ${ECS_SOURCE}
+    ${PHYSICS_SOURCE}
 )
 
 add_custom_command(TARGET flock POST_BUILD
