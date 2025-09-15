@@ -24,19 +24,15 @@ public:
     void AddBody(Entity& entity)
     {
         if(entity.hasComponent<PhysicsShapeComponent>() && entity.hasComponent<TransformComponent>());
-          auto shapeComponent = entity.getComponent<PhysicsShapeComponent>();
+            auto shapeComponent = entity.getComponent<PhysicsShapeComponent>();
             auto transformComponent = entity.getComponent<TransformComponent>();
 
-        auto physicsShape = shapeToPhysics(shapeComponent.type);
+            auto physicsShape = shapeToPhysics(shapeComponent.type);
 
-        Logger::log("creating body body");
-        std::shared_ptr<Body> body = std::make_shared<Body>(physicsShape, 
-            transformComponent.position.x, transformComponent.position.y, transformComponent.position.z, 
-            1.0f);
-
-        Logger::warning("trying to add entity to physics system");
-        world->AddBody(body);
-        Logger::warning("added one entity to the physics system");
+            std::shared_ptr<Body> body = std::make_shared<Body>(physicsShape, 
+                transformComponent.position.x, transformComponent.position.y, transformComponent.position.z, 
+                shapeComponent.mass);
+            world->AddBody(body);
     }
 
     void addForce(const glm::vec3 force)
@@ -53,48 +49,49 @@ public:
     {
         world->Update(deltaTime);
         auto bodies = world->GetBodies();
+
+        int i = 0;
         for(auto& entity : getSystemEntities())
         {
-            auto body = bodies[0];
+            auto body = bodies[i++];
             auto& transform = entity.getComponent<TransformComponent>();
 
             transform.position = body->position;
-            Logger::log("body->position.y = " + std::to_string(body->position.y));
         }
     }
 
     std::shared_ptr<World> world;
 
 private:
-    std::shared_ptr<Shape> shapeToPhysics(PhysicsShapeType shapeType)
+    std::shared_ptr<Shape> shapeToPhysics(PhysicsShapeComponent shapeComponent)
     {
-        switch(shapeType)
+        switch(shapeComponent.type)
         {
             case PhysicsShapeType::BOX:
             {
-                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(1.0f, 1.0f, 1.0f);
+                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(shapeComponent.size, shapeComponent.size, shapeComponent.size);
                 return body->Clone();
             }
 
             case PhysicsShapeType::PLANE:
             {
-                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(1.0f, 0.01, 1.0f);
+                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(shapeComponent.size, shapeComponent.size / 100.0f, shapeComponent.size);
                 return body->Clone();
             }
 
             case PhysicsShapeType::SPHERE:
             {
-                std::shared_ptr<CircleShape> body = std::make_shared<CircleShape>(1.0f);
+                std::shared_ptr<CircleShape> body = std::make_shared<CircleShape>(shapeComponent.size);
                 return body->Clone();
             }
 
             default:
             {
-                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(1.0f, 1.0f, 1.0f);
+                std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(shapeComponent.size, shapeComponent.size, shapeComponent.size);
                 return body->Clone();
             }
         }
-        std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(1.0f, 1.0f, 1.0f);
+        std::shared_ptr<BoxShape> body = std::make_shared<BoxShape>(shapeComponent.size, shapeComponent.size, shapeComponent.size);
         return body->Clone();
     }
 };

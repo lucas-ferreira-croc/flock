@@ -5,12 +5,16 @@
 
 struct BaseLight
 {
-    BaseLight(glm::vec3 positon, glm::vec3 ambientColor, glm::vec3 diffuseColor, glm::vec3 specularColor);
+    BaseLight();
+    BaseLight(float r, float  g, float  b, float intensity);
+    BaseLight(glm::vec3 color, float intensity);
+    BaseLight(glm::vec3 color, float ambientIntensity, float diffuseIntensity);
+	~BaseLight();
 
-    glm::vec3 position;
-    glm::vec3 ambientColor;
-    glm::vec3 diffuseColor;
-    glm::vec3 specularColor;
+    glm::vec3 color;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float specularIntensity;
 
 };
 

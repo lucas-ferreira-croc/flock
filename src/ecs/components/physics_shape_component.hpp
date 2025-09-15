@@ -12,12 +12,16 @@ enum class PhysicsShapeType
 
 struct PhysicsShapeComponent
 {
-    PhysicsShapeComponent(PhysicsShapeType shapeType = PhysicsShapeType::BOX)
+    PhysicsShapeComponent(PhysicsShapeType shapeType = PhysicsShapeType::BOX, float mass = 1.0f, float size = 1.0f)
     {
         type = shapeType;
+        this->mass = mass;
+        this->size = size;
     }
     
     PhysicsShapeType type;
+    float mass;
+    float size;
 };
 
 #endif

@@ -53,7 +53,7 @@ struct MeshComponent
         model = std::make_shared<Model>(path.c_str());
     }
 
-    MeshComponent(std::string path)
+    MeshComponent(std::string path, bool hasCollision = false)
     {
         model = std::make_shared<Model>(path.c_str());
     }

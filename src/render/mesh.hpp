@@ -30,16 +30,29 @@ class Mesh
 public:
 
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<MeshTexture> textures);
-    void render(Shader& shader);
+    virtual void render(Shader& shader);
     
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<MeshTexture> textures;
 
-private:
+protected:
     unsigned int _VAO, _VBO, _EBO;
     
     void setupMesh();
+};
+
+class DebugMesh
+{
+public:
+    DebugMesh(float* vertices, int verticesSize, unsigned int* indices, int indicesSize);
+    void render(Shader& shader);
+
+private:
+	unsigned int m_VAO;
+	unsigned int m_VBO;
+	unsigned int m_IBO;
+    int m_indicesSize;
 };
 
 #endif

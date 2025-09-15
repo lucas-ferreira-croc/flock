@@ -7,6 +7,9 @@
 #include <glm/glm.hpp>
 
 #include "render/shader.hpp"
+#include "render/light/directional_light.hpp"
+#include "render/light/point_light.hpp"
+#include "render/light/spot_light.hpp"
 
 struct ShaderComponent
 {
@@ -44,9 +47,30 @@ struct ShaderComponent
         uniformVec3[name] = value;
     }
 
+    void addUniformFloat(std::string name, float value){
+        uniformFloat[name] = value;
+    }
+
+    void setDirectionalLight(DirectionalLight& light)
+    {
+        shader->bind();
+        shader->setFloat3("directional_light.base.color", light.color);
+        shader->setFloat("directional_light.base.ambient", light.ambientIntensity);
+        shader->setFloat("directional_light.base.diffuse", light.diffuseIntensity);
+        shader->setFloat("directional_light.base.specular", light.diffuseIntensity);
+        shader->setFloat3("directional_light.direction", light.direction);
+        shader->setFloat3("directional_light.direction", light.direction);
+    }
+
     std::shared_ptr<Shader> shader;
     std::unordered_map<std::string, glm::vec4> uniformVec4;
     std::unordered_map<std::string, glm::vec3> uniformVec3;
+    std::unordered_map<std::string, float> uniformFloat;
+    //DirectionalLight light;
+    //std::vector<PointLight> pointLights;
+    //std::vector<SpotLight> spotLights;
+
+
 };
 
 #endif

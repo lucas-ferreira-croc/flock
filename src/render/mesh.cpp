@@ -65,3 +65,31 @@ void Mesh::render(Shader& shader)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+DebugMesh::DebugMesh(float* vertices, int verticesSize, unsigned int* indices, int indicesSize)
+{
+    m_indicesSize = indicesSize;
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+
+    glGenBuffers(1, &m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, verticesSize * sizeof(float), vertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glGenBuffers(1, &m_IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+}
+
+void DebugMesh::render(Shader& shader)
+{
+	glBindVertexArray(m_VAO);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES, m_indicesSize, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, m_indicesSize, GL_UNSIGNED_INT, 0);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}

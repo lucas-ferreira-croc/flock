@@ -11,13 +11,27 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
+struct CollisionVertices
+{
+	std::vector<glm::vec3> m_PositionsBuffer;
+	std::vector<unsigned int> m_IndicesBuffer;
+
+	glm::vec3 min, max;
+};
+
+
 class Model
 {
 public:
-    Model(const char* path)
+    Model(const char* path, bool hasCollision = false)
     {
         loadModel(path);
-
+        if(hasCollision)
+        {
+            CollisionVertices collisionVertices;
+            getBoundingBox(collisionVertices);
+        }
         Logger::log("model created");
     }
     
@@ -34,6 +48,8 @@ private:
 
     std::vector<MeshTexture> loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName);
     std::shared_ptr<Texture> textureFromFile(const char* path, const std::string& directory);
+
+    void getBoundingBox(CollisionVertices& vertices);
 };
 
 #endif

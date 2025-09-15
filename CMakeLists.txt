@@ -37,6 +37,7 @@ set(COMPONENTS_SOURCE
     src/ecs/components/transform_component.hpp
     src/ecs/components/rigid_body_component.hpp
     src/ecs/components/mesh_component.hpp
+    src/ecs/components/debug_mesh_component.hpp
     src/ecs/components/shader_component.hpp
     src/ecs/components/material_component.hpp
     src/ecs/components/physics_shape_component.hpp
@@ -60,6 +61,10 @@ set(RENDER_SOURCE
     src/render/model.cpp
     src/render/model.hpp
     src/render/light/base_light.hpp
+    src/render/light/base_light.cpp
+    src/render/light/directional_light.hpp
+    src/render/light/point_light.hpp
+    src/render/light/spot_light.hpp
 )
 
 set(TEXTURE_SOURCE

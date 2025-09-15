@@ -5,6 +5,7 @@
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/mesh_component.hpp"
 #include "ecs/components/shader_component.hpp"
+#include "ecs/components/physics_shape_component.hpp"
 #include "ecs/components/material_component.hpp"
 
 class RenderSystem : public System
@@ -15,6 +16,12 @@ public:
         //requireComponent<MeshComponent>();
         requireComponent<TransformComponent>();
         requireComponent<ShaderComponent>();
+
+        std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
+        std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\debug_f.glsl";
+
+        debugShader = std::make_shared<Shader>();
+        debugShader->createFromFile(vsFilename, fsFilename);
     }
 
     void Update(glm::mat4 projection, std::shared_ptr<Camera> camera)
@@ -40,9 +47,18 @@ public:
             shader->setMat4("view", camera->getLookAt());
             shader->setMat4("model", modelTransform);
 
-
-            if(shaderComponent.uniformVec3.find("light.position") != shaderComponent.uniformVec3.end())
+            bool hasLightPosition = shaderComponent.uniformVec3.find("light.position") != shaderComponent.uniformVec3.end();
+            bool hasLightDirection = shaderComponent.uniformVec3.find("light.direction") != shaderComponent.uniformVec3.end();
+            if(hasLightDirection || hasLightPosition)
             {
+                if(hasLightPosition)
+                {
+                    for(auto& uniform : shaderComponent.uniformFloat)
+                    {
+                        shader->setFloat(uniform.first, uniform.second);
+                    }
+                }
+
                 for(auto& uniform : shaderComponent.uniformVec3)
                 {
                     shader->setFloat3(uniform.first, uniform.second);
@@ -65,7 +81,6 @@ public:
                 auto& material = entity.getComponent<MaterialComponent>();
                 shader->setFloat3("material.ambient", material.ambient);
                 shader->setFloat3("material.diffuse", material.diffuse);
-                shader->setFloat3("material.specular", material.specular);
                 shader->setFloat("material.shininess", material.shininess);
             }
 
@@ -74,7 +89,22 @@ public:
                 auto& mesh = entity.getComponent<MeshComponent>();
                 mesh.model->render(*shader);
             }
+
+
+            if(entity.hasComponent<DebugMeshComponent>() && debugMode){
+                //auto shape = entity.getComponent<PhysicsShapeComponent>().type;
+                //auto size = entity.getComponent<PhysicsShapeComponent>().size;
+                debugShader->bind();
+                debugShader->setMat4("projection", projection);
+                debugShader->setMat4("view", camera->getLookAt());
+                debugShader->setMat4("model", modelTransform);
+                entity.getComponent<DebugMeshComponent>().debugMesh->render(*debugShader);
+            }
         }
     }
+    
+    bool debugMode = true;
+private:
+    std::shared_ptr<Shader> debugShader;
 };
 #endif

@@ -162,3 +162,92 @@ std::shared_ptr<Texture> Model::textureFromFile(const char* path, const std::str
     texture->loadTextureA();
     return texture;
 }
+
+void Model::getBoundingBox(CollisionVertices& vertices)
+{
+    glm::vec3 min, max;
+    min = max = _meshes.at(0).vertices.at(0).position;
+
+    for(auto mesh : _meshes)
+    {
+        for(auto vertex : mesh.vertices)
+        {
+            min.x = std::min(min.x, vertex.position.x);
+            min.y = std::min(min.y, vertex.position.y);
+            min.z = std::min(min.z, vertex.position.z);
+
+            max.x = std::max(max.x, vertex.position.x);
+            max.y = std::max(max.y, vertex.position.y);
+            max.z = std::max(max.z, vertex.position.z);
+        }
+    }
+
+    vertices.m_PositionsBuffer.reserve(9);
+
+    glm::vec3 A;
+    A.x = min.x;
+    A.y = max.y;
+    A.z = max.z;
+
+    A = glm::vec4(A, 1.0f);
+    vertices.m_PositionsBuffer.push_back(A);
+
+    glm::vec3 B;
+    B.x = max.x;
+    B.y = min.y;
+    B.z = max.z;
+    B = glm::vec4(B, 1.0f);
+    vertices.m_PositionsBuffer.push_back(B);
+
+    glm::vec3 C;
+    C.x = min.x;
+    C.y = min.y;
+    C.z = max.z;
+    C = glm::vec4(C, 1.0f);
+    vertices.m_PositionsBuffer.push_back(C);
+
+    glm::vec3 D;
+    D.x = max.x;
+    D.y = max.y;
+    D.z = max.z;
+    D = glm::vec4(D, 1.0f);
+    vertices.m_PositionsBuffer.push_back(D);
+
+    glm::vec3 E;
+    E.x = max.x;
+    E.y = min.y;
+    E.z = min.z;
+    E = glm::vec4(E, 1.0f);
+    vertices.m_PositionsBuffer.push_back(E);
+
+    glm::vec3 F;
+    F.x = max.x;
+    F.y = max.y;
+    F.z = min.z;
+    F = glm::vec4(F, 1.0f);
+    vertices.m_PositionsBuffer.push_back(F);
+
+    glm::vec3 G;
+    G.x = min.x;
+    G.y = min.y;
+    G.z = min.z;
+    G = glm::vec4(G, 1.0f);
+    vertices.m_PositionsBuffer.push_back(G);
+
+    glm::vec3 H;
+    H.x = max.x;
+    H.y = min.y;
+    H.z = min.z;
+    H = glm::vec4(H, 1.0f);
+    vertices.m_PositionsBuffer.push_back(H);
+
+    glm::vec3 I;
+    I.x = min.x;
+    I.y = max.y;
+    I.z = min.z;
+    I = glm::vec4(I, 1.0f) ;
+    vertices.m_PositionsBuffer.push_back(I);
+
+    vertices.min = glm::vec4(min, 1.0f);
+    vertices.max = glm::vec4(max, 1.0f);
+}
