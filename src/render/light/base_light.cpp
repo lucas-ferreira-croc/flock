@@ -1,7 +1,7 @@
 #include "base_light.hpp"
 
-BaseLight::BaseLight(glm::vec3 color, float ambientIntensity, float diffuseIntensity, float specularIntensity)
-    : color(color), ambientIntensity(ambientIntensity), diffuseIntensity(diffuseIntensity), specularIntensity(specularIntensity)
+BaseLight::BaseLight(glm::vec3 color, float ambientIntensity, float diffuseIntensity)
+    : color(color), ambientIntensity(ambientIntensity), diffuseIntensity(diffuseIntensity)
 {
 
 }

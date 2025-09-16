@@ -72,15 +72,12 @@ public:
                 shader->setFloat4(uniform.first, uniform.second);
             }
    
-            //shader shader.setMat4("wvp", wvp);
-            
-            //shader.setMat4("wvp", wvp);
-
             if(entity.hasComponent<MaterialComponent>())
             {
                 auto& material = entity.getComponent<MaterialComponent>();
                 shader->setFloat3("material.ambient", material.ambient);
                 shader->setFloat3("material.diffuse", material.diffuse);
+                shader->setFloat3("material.specular", material.specular);
                 shader->setFloat("material.shininess", material.shininess);
             }
 

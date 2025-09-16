@@ -83,51 +83,39 @@ void Game::loadLevel(int level)
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
     std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
-    glm::vec3 lightAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-    glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-    glm::vec3 lightSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
-    float lightConstant = 1.0f;
-    float lightLinear = 0.09f;
-    float lightQuadratic = 0.032f;
-    DirectionalLight directionalLight(glm::vec3(1.0f), 1.0f, 1.0f);
-    directionalLight.direction = glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f));
+    DirectionalLight directionalLight(glm::vec3(1.0f), 0.4f, 0.4f);
+    directionalLight.direction = glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f)); 
 
-    Entity light = _registry->createEntity();
-    light.addComponent<TransformComponent>(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    //light.addComponent<MeshComponent>(MeshType::BOX);
-    light.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
-    light.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 1.0f);
-    _registry->getSystem<PhysicsSystem>().AddBody(light);
+    std::vector<PointLight> pointLights;
+	PointLight pointLight0;
+	pointLight0.diffuseIntensity = 0.5f;
+	pointLight0.ambientIntensity = 0.5f;
+	pointLight0.color = glm::vec3(0.0f, 1.0f, 1.0f);
+    pointLight0.position = glm::vec3(0.0, 1.0f, 0.0f);
+	pointLight0.attenuation.linear = 0.09f;
+	pointLight0.attenuation.exp = 0.032f;
+	pointLights.push_back(pointLight0);
 
-    //light.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    //light.getComponent<ShaderComponent>().addUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    //light.getComponent<ShaderComponent>().addUniformVec3("lightPos", glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f)));
+    std::vector<SpotLight> spotLights;
 
+    SpotLight spotLight0;
+    spotLight0.diffuseIntensity = 1.0f;
+    spotLight0.ambientIntensity = 1.0f;
+    spotLight0.color = glm::vec3(1.0f, 0.0f, 0.0);
+    spotLight0.attenuation.linear = 0.1f;
+    spotLight0.cutoff = glm::cos(glm::radians(12.5f));
+    spotLight0.outerCutofff = glm::cos(glm::radians(15.0f));
+    spotLight0.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+    spotLights.push_back(spotLight0);
 
-    // Entity sphere = _registry->createEntity();
-    // sphere.addComponent<TransformComponent>(glm::vec3(-2.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    // //sphere.addComponent<RigidBodyComponent>(glm::vec3(1.0f, 0.0f, -5.0f));
-    // sphere.addComponent<MeshComponent>(MeshType::SPHERE);
-    // sphere.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
-    // sphere.getComponent<ShaderComponent>().addUniformVec4("color", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-    // sphere.getComponent<ShaderComponent>().addUniformVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    // sphere.getComponent<ShaderComponent>().addUniformVec3("lightPos", glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f)));
-
-    
     Entity backpack = _registry->createEntity();
     backpack.addComponent<TransformComponent>(glm::vec3(3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    //backpack.addComponent<RigidBodyComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
     backpack.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
     backpack.addComponent<MaterialComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f);
     backpack.addComponent<ShaderComponent>(vsFilename, fsFilename);
-    //backpack.getComponent<ShaderComponent>().addUniformVec3("light.direction", glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f)));
-    //backpack.getComponent<ShaderComponent>().addUniformVec3("light.ambient", lightAmbient);
-    //backpack.getComponent<ShaderComponent>().addUniformVec3("light.diffuse", lightDiffuse);
-    //backpack.getComponent<ShaderComponent>().addUniformVec3("light.specular", lightSpecular);
-    //backpack.getComponent<ShaderComponent>().addUniformFloat("light.constant", lightConstant);
-    //backpack.getComponent<ShaderComponent>().addUniformFloat("light.linear", lightLinear);
-    //backpack.getComponent<ShaderComponent>().addUniformFloat("light.qudratic", lightQuadratic);
     backpack.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
+    backpack.getComponent<ShaderComponent>().setPointLights(pointLights);
+    backpack.getComponent<ShaderComponent>().setSpotLights(spotLights);
     backpack.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     
     _registry->getSystem<PhysicsSystem>().AddBody(backpack);
@@ -139,13 +127,10 @@ void Game::loadLevel(int level)
     teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\teapot.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 256.0f);
-    //teapot.getComponent<ShaderComponent>().addUniformFloat("light.constant", lightConstant);
-    //teapot.getComponent<ShaderComponent>().addUniformFloat("light.linear", lightLinear);
-    //teapot.getComponent<ShaderComponent>().addUniformFloat("light.qudratic", lightQuadratic);
     teapot.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
+    teapot.getComponent<ShaderComponent>().setPointLights(pointLights);
+    teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
     teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 0.0f);
-
-    //teapot.addComponent<DebugMeshComponent>();
     _registry->getSystem<PhysicsSystem>().AddBody(teapot);
     
 
@@ -155,10 +140,9 @@ void Game::loadLevel(int level)
     plane.addComponent<MeshComponent>(MeshType::PLANE);
     plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
-    //plane.getComponent<ShaderComponent>().addUniformFloat("light.constant", lightConstant);
-    //plane.getComponent<ShaderComponent>().addUniformFloat("light.linear", lightLinear);
-    //plane.getComponent<ShaderComponent>().addUniformFloat("light.qudratic", lightQuadratic);
     plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
+    plane.getComponent<ShaderComponent>().setPointLights(pointLights);
+    plane.getComponent<ShaderComponent>().setSpotLights(spotLights);
     
     plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     _registry->getSystem<PhysicsSystem>().AddBody(plane);
