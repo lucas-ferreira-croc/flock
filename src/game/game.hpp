@@ -51,6 +51,7 @@ private:
     double _deltaTime;
 
     unsigned int VAO, VBO, IBO;
+    unsigned int quadVAO, quadVBO;
 
     std::unique_ptr<Model> model;
 };

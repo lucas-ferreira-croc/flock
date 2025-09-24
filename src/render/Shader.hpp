@@ -13,6 +13,9 @@ class Shader
 {
 public:
 	Shader();
+	Shader::Shader(int id) : id(id)
+	{
+	}
 	~Shader();
 
 	void createFromString(const char* vertex_code, const char* fragment_code);

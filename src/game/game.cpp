@@ -18,6 +18,7 @@
 #include "ecs/components/debug_mesh_component.hpp"
 #include "ecs/components/shader_component.hpp"
 #include "ecs/components/material_component.hpp"
+#include "ecs/components/cubemap_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
@@ -83,6 +84,8 @@ void Game::loadLevel(int level)
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
     std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
+    std::string fsReflectionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_reflection.glsl";
+    std::string fsRefractionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_refraction.glsl";
     DirectionalLight directionalLight(glm::vec3(1.0f), 0.4f, 0.4f);
     directionalLight.direction = glm::normalize(glm::vec3(-0.2f, -1.0f, -0.3f)); 
 
@@ -108,11 +111,30 @@ void Game::loadLevel(int level)
     spotLight0.direction = glm::vec3(0.0f, -1.0f, 0.0f);
     spotLights.push_back(spotLight0);
 
+
+    std::string cubemapVS = "C:\\dev\\shader\\flock\\assets\\shaders\\v_skybox.glsl";
+    std::string cubemapFS = "C:\\dev\\shader\\flock\\assets\\shaders\\f_skybox.glsl";
+    std::vector<std::string> cubemapFaces = {
+        "C:\\dev\\shader\\flock\\assets\\skybox\\right.jpg",
+        "C:\\dev\\shader\\flock\\assets\\skybox\\left.jpg",
+        "C:\\dev\\shader\\flock\\assets\\skybox\\top.jpg",
+        "C:\\dev\\shader\\flock\\assets\\skybox\\bottom.jpg",
+        "C:\\dev\\shader\\flock\\assets\\skybox\\front.jpg",
+        "C:\\dev\\shader\\flock\\assets\\skybox\\back.jpg"
+    };
+
+    Entity cubemap = _registry->createEntity();
+    cubemap.addComponent<TransformComponent>(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+    cubemap.addComponent<ShaderComponent>(cubemapVS, cubemapFS);
+    cubemap.addComponent<CubemapComponent>(cubemapFaces);
+    cubemap.getComponent<ShaderComponent>().addUniformInt("skybox", 0);
+
     Entity backpack = _registry->createEntity();
     backpack.addComponent<TransformComponent>(glm::vec3(3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     backpack.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
     backpack.addComponent<MaterialComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f);
     backpack.addComponent<ShaderComponent>(vsFilename, fsFilename);
+    backpack.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     backpack.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     backpack.getComponent<ShaderComponent>().setPointLights(pointLights);
     backpack.getComponent<ShaderComponent>().setSpotLights(spotLights);
@@ -123,13 +145,14 @@ void Game::loadLevel(int level)
 
     
     Entity teapot = _registry->createEntity();
-    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\teapot.dae");
+    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, 0.0f, -2.0f), glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\dragon.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 256.0f);
     teapot.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     teapot.getComponent<ShaderComponent>().setPointLights(pointLights);
     teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 0.0f);
     _registry->getSystem<PhysicsSystem>().AddBody(teapot);
     
@@ -141,17 +164,13 @@ void Game::loadLevel(int level)
     plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
     plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
+    plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     plane.getComponent<ShaderComponent>().setPointLights(pointLights);
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);
     
     plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     _registry->getSystem<PhysicsSystem>().AddBody(plane);
     
-
-     // square.addComponent<TransformComponent>();
-    // square.addComponent<BoxColliderComponent>();
-    // square.addComponent<BoxGeometryComponent>()
-    _shader.createFromFile(vsFilename, fsFilename);
 }
 
 void Game::setup()
@@ -209,20 +228,7 @@ void Game::update()
 }
 void Game::render()
 {
-    _display->clearColor(0.0f, 0.0f, 0.0f, 1.0f); 
-
-    _display->clear();
-
-    if (angle <= 360)
-        angle += 60.0f * (float)_deltaTime;
-    else
-        angle = 0.0f;
-
-    glm::mat4 wvp(1.0f);
-    glm::mat4 modelTransform(1.0f);
-
-    modelTransform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-    _registry->getSystem<RenderSystem>().Update(projection, _camera);
+    _registry->getSystem<RenderSystem>().Update(projection, _camera, *_display);
 
   //// ImGui
     ImGui_ImplOpenGL3_NewFrame();

@@ -11,6 +11,34 @@ Texture::Texture()
 {
 }
 
+Texture::Texture(std::vector<std::string> faces)
+	: _width(0), _height(0), _bitDepth(0), _filepath(""), textureTarget(GL_TEXTURE_CUBE_MAP)
+{
+	glGenTextures(1, &textureObject);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureObject);
+
+	for(unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &_width, &_height, &_bitDepth, 0);
+		if(data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+						 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else{
+			Logger::err("Cubemap texture faield to load at path : " + faces[i]);
+			stbi_image_free(data);
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+}
 
 Texture::Texture(GLenum textureTarget, std::string filepath)
 	:  _width(0), _height(0), _bitDepth(0), _filepath(filepath), textureTarget(textureTarget)

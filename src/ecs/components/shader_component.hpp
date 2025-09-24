@@ -52,6 +52,10 @@ struct ShaderComponent
         uniformFloat[name] = value;
     }
 
+    void addUniformInt(std::string name, int value){
+        uniformInt[name] = value;
+    }
+
     void setDirectionalLight(DirectionalLight& light)
     {
         shader->bind();
@@ -124,6 +128,7 @@ struct ShaderComponent
     std::unordered_map<std::string, glm::vec4> uniformVec4;
     std::unordered_map<std::string, glm::vec3> uniformVec3;
     std::unordered_map<std::string, float> uniformFloat;
+    std::unordered_map<std::string, int> uniformInt;
     //DirectionalLight light;
     //std::vector<PointLight> pointLights;
     //std::vector<SpotLight> spotLights;

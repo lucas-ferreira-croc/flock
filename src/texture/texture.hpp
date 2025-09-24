@@ -3,11 +3,13 @@
 
 #include <glad/gl.h>
 #include <string>
+#include <vector>
 
 class Texture
 {
 public:
 	Texture();
+	Texture(std::vector<std::string> faces);
 	Texture(GLenum textureTarget, std::string filepath);
 	~Texture();
 

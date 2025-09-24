@@ -41,6 +41,7 @@ set(COMPONENTS_SOURCE
     src/ecs/components/shader_component.hpp
     src/ecs/components/material_component.hpp
     src/ecs/components/physics_shape_component.hpp
+    src/ecs/components/cubemap_component.hpp
 )
 
 set(SYSTEMS_SOURCE
