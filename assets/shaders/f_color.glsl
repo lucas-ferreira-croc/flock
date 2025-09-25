@@ -120,8 +120,9 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     float diff = max(dot(normal, lightDirection), 0.0);
     
     // specular
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDir, reflectDirection), 0.0), material.shininess);
+    //vec3 reflectDirection = reflect(-lightDirection, normal);
+    vec3 halfwayDirection = normalize(lightDirection + viewDir);
+    float spec = pow(max(dot(normal, halfwayDirection), 0.0), material.shininess);
 
     vec3 ambient = light.base.color * directional_light.base.ambient * material.ambient;
     vec3 diffuse = light.base.color * directional_light.base.diffuse * (diff * material.diffuse);
@@ -138,8 +139,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float diff = max(dot(normal, lightDirection), 0.0);
 
     // specular
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDir, reflectDirection), 0.0), material.shininess);
+    //vec3 reflectDirection = reflect(-lightDirection, normal);
+    vec3 halfwayDirection = normalize(lightDirection + viewDir);
+    float spec = pow(max(dot(normal, halfwayDirection), 0.0), material.shininess);
 
     // attenuation
     float distance_ = length(light.position - fragPos);
@@ -163,8 +165,10 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float diff = max(dot(normal, lightDirection), 0.0);
 
     // specular
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDir, reflectDirection), 0.0), material.shininess);
+    //vec3 reflectDirection = reflect(-lightDirection, normal);
+    vec3 halfwayDirection = normalize(lightDirection + viewDir);
+
+    float spec = pow(max(dot(normal, halfwayDirection), 0.0), material.shininess);
 
     // attenuation
     float distance_ = length(light.pointLightBase.position - fragPos);
