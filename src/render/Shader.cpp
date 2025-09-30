@@ -42,13 +42,11 @@ void Shader::unbind()
 
 void Shader::clear()	
 {
-    glDeleteProgram(id);
-
-	// if (id != 0)
-	// {
-	// 	glDeleteProgram(id);
-	// 	id = 0;
-	// }
+	if (id != 0)
+	{
+	 	glDeleteProgram(id);
+	 	id = 0;
+	}
 }
 
 void Shader::setInt(const std::string& name, int value)
@@ -129,8 +127,10 @@ bool Shader::reload()
 		return false;
 
 	clear();
+	_uniformCache.clear();
 	createFromFile(_vertexPath, _fragmentPath);
 	bind();
+	return true;
 }
 
 void Shader::compile(const char* vertex_code, const char* fragment_code)

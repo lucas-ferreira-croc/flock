@@ -58,6 +58,7 @@ struct ShaderComponent
 
     void setDirectionalLight(DirectionalLight& light)
     {
+        directionalLight = light;
         shader->bind();
         shader->setFloat3("directional_light.base.color", light.color);
         shader->setFloat("directional_light.base.ambient", light.ambientIntensity);
@@ -67,6 +68,7 @@ struct ShaderComponent
 
     void setPointLights(std::vector<PointLight>& pointLights)
     {
+        _pointLights = pointLights;
         shader->bind();
         shader->setInt("point_lights_size", pointLights.size());
 
@@ -94,6 +96,7 @@ struct ShaderComponent
 
     void setSpotLights(std::vector<SpotLight>& spotLights)
     {
+        _spotLights = spotLights;
         shader->bind();
         shader->setInt("spot_lights_size", spotLights.size());
 
@@ -124,7 +127,38 @@ struct ShaderComponent
         }
     }
 
+    void reset()
+    {
+        shader->reload();
+        setDirectionalLight(directionalLight);
+        setPointLights(_pointLights);
+        setSpotLights(_spotLights);
+
+        shader->bind();
+        for(auto uniform : uniformFloat)
+        {
+            shader->setFloat(uniform.first, uniform.second);
+        }
+
+        for(auto uniform : uniformInt)
+        {
+            shader->setInt(uniform.first, uniform.second);
+        }
+
+        for(auto uniform : uniformVec3)
+        {
+            shader->setFloat3(uniform.first, uniform.second);
+        }
+
+        for(auto uniform : uniformVec4)
+        {
+            shader->setFloat4(uniform.first, uniform.second);
+        }
+    }
     std::shared_ptr<Shader> shader;
+    std::vector<SpotLight> _spotLights;
+    std::vector<PointLight> _pointLights;
+    DirectionalLight directionalLight;
     std::unordered_map<std::string, glm::vec4> uniformVec4;
     std::unordered_map<std::string, glm::vec3> uniformVec3;
     std::unordered_map<std::string, float> uniformFloat;

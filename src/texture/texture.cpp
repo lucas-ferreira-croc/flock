@@ -23,7 +23,7 @@ Texture::Texture(std::vector<std::string> faces)
 		if(data)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-						 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+						 0, GL_SRGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
 		else{
@@ -83,7 +83,7 @@ bool Texture::loadTexture()
 	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(textureTarget, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+	glTexImage2D(textureTarget, 0, GL_SRGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
 
 	glGenerateMipmap(textureTarget);
 	glBindTexture(textureTarget, 0);
@@ -125,7 +125,7 @@ bool Texture::loadTextureA()
 	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(textureTarget, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+	glTexImage2D(textureTarget, 0, GL_SRGB, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
 
 	glGenerateMipmap(textureTarget);
 	glBindTexture(textureTarget, 0);

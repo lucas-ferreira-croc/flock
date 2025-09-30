@@ -102,12 +102,12 @@ void Game::loadLevel(int level)
     std::vector<SpotLight> spotLights;
 
     SpotLight spotLight0;
-    spotLight0.diffuseIntensity = 1.0f;
-    spotLight0.ambientIntensity = 1.0f;
-    spotLight0.color = glm::vec3(1.0f, 0.0f, 0.0);
+    spotLight0.diffuseIntensity = 0.3f;
+    spotLight0.ambientIntensity = 0.5f;
+    spotLight0.color = glm::vec3(1.0f, 1.0f, 1.0);
     spotLight0.attenuation.linear = 0.1f;
-    spotLight0.cutoff = glm::cos(glm::radians(12.5f));
-    spotLight0.outerCutofff = glm::cos(glm::radians(15.0f));
+    spotLight0.cutoff = glm::cos(glm::radians(50.5f));
+    spotLight0.outerCutofff = glm::cos(glm::radians(60.0f));
     spotLight0.direction = glm::vec3(0.0f, -1.0f, 0.0f);
     spotLights.push_back(spotLight0);
 
@@ -128,6 +128,7 @@ void Game::loadLevel(int level)
     cubemap.addComponent<ShaderComponent>(cubemapVS, cubemapFS);
     cubemap.addComponent<CubemapComponent>(cubemapFaces);
     cubemap.getComponent<ShaderComponent>().addUniformInt("skybox", 0);
+    entities.push_back(cubemap);
 
     Entity backpack = _registry->createEntity();
     backpack.addComponent<TransformComponent>(glm::vec3(3.0f, 0.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -141,20 +142,22 @@ void Game::loadLevel(int level)
     backpack.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     
     _registry->getSystem<PhysicsSystem>().AddBody(backpack);
+    entities.push_back(backpack);
     
 
     
     Entity teapot = _registry->createEntity();
-    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, 0.0f, -2.0f), glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\dragon.dae");
+    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -1.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\smooth_teapot.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
-    teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 256.0f);
+    teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
     teapot.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     teapot.getComponent<ShaderComponent>().setPointLights(pointLights);
     teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 0.0f);
     _registry->getSystem<PhysicsSystem>().AddBody(teapot);
+    entities.push_back(teapot);
     
 
     
@@ -169,6 +172,8 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);
     
     plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
+    entities.push_back(plane);
+
     _registry->getSystem<PhysicsSystem>().AddBody(plane);
     
 }
@@ -204,6 +209,11 @@ void Game::processInput()
 
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_R) == GLFW_PRESS)
     {
+        for(auto entity : entities)
+        {
+            auto shaderComponent = _registry->getComponent<ShaderComponent>(entity);
+            shaderComponent.reset();
+        }
     }
 }
 void Game::update()

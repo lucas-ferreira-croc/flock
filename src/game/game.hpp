@@ -53,6 +53,7 @@ private:
     unsigned int VAO, VBO, IBO;
     unsigned int quadVAO, quadVBO;
 
+    std::vector<Entity> entities;
     std::unique_ptr<Model> model;
 };
 
