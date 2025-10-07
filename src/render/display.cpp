@@ -119,6 +119,36 @@ void Display::initializeWindow()
 
 	_framebufferShader = std::make_shared<Shader>();
 	_framebufferShader->createFromFile(vsFilename, fsFilename);
+
+	// depth for shadows
+	glGenFramebuffers(1, &depthMapFBO);
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	_depthbufferShader = std::make_shared<Shader>();
+	
+	vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v_depthMap.glsl";
+ 	fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_depthMap.glsl";
+	_depthbufferShader->createFromFile(vsFilename, fsFilename);
+	
+
+	vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v_debug_depth.glsl";
+ 	fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_debug_depth.glsl";
+	depthDebugShader = std::make_shared<Shader>();
+	depthDebugShader->createFromFile(vsFilename, fsFilename);
+	_depthbufferShader->bind();
+	_depthbufferShader->setInt("depthMap", 0);
 }
 
 void Display::swapBuffers()
@@ -172,4 +202,22 @@ void Display::renderFramebuffer()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Display::renderDepthBuffer()
+{
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+
+}
+
+void Display::renderDepthBufferDebug()
+{
+	_depthbufferShader->bind();
+    _depthbufferShader->setInt("shadowMap", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
 }

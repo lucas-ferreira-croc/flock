@@ -28,8 +28,19 @@ public:
 	int getBufferHeight() { return _bufferHeight; };
 
 	void renderFramebuffer();
+	void renderDepthBuffer();
+	void renderDepthBufferDebug();
 	unsigned int framebuffer;
-	private:
+	
+
+	// depthbuffer
+	std::shared_ptr<Shader> _depthbufferShader;
+	std::shared_ptr<Shader> depthDebugShader;
+	unsigned int depthMapFBO;
+	unsigned int depthMap;
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+private:
 	GLFWwindow* window;
 	
 	unsigned int _windowWidth;
@@ -46,6 +57,7 @@ public:
 	unsigned int textureColorbuffer;
 	unsigned int quadVAO;
 	unsigned int quadVBO;
+
 
 private:
 
