@@ -56,7 +56,6 @@ struct Light
     float quadratic;
 };
 
-uniform Light light;
 uniform DirectionalLight directional_light;
 
 uniform vec3 viewPos;
@@ -84,7 +83,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 
 float near = 0.1;
-float far = 100.0;
+float far = 15.0;
 
 float LinearizeDepth(float depth)
 {
@@ -94,41 +93,101 @@ float LinearizeDepth(float depth)
 
 uniform sampler2D shadowMap;
 
-float shadowCalculations(vec4 fragPosLightSpace)
+// float shadowCalculations(vec4 fragPosLightSpace, vec3 fragNormal)
+// {
+//     // Perform perspective divide
+//     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    
+//     // Transform to [0,1] range
+//     projCoords = projCoords * 0.5 + 0.5;
+    
+//     // Check if outside light frustum
+//     if(projCoords.z > 1.0)
+//         return 0.0;
+    
+//     if(projCoords.x < 0.0 || projCoords.x > 1.0 || 
+//        projCoords.y < 0.0 || projCoords.y > 1.0)
+//         return 0.0;
+    
+//     // Get closest depth value from light's perspective
+//     float closestDepth = texture(shadowMap, projCoords.xy).r;
+    
+//     // Get depth of current fragment from light's perspective  
+//     float currentDepth = projCoords.z;
+    
+//     // Calculate bias (based on surface angle toward light)
+//     vec3 norm = normalize(fragNormal);
+//     vec3 lightDir = normalize(-directional_light.direction);
+    
+//     // Bias constante pequeno primeiro - depois ajustar dinamicamente se necessário
+//      float bias = 0.0001;
+    
+    
+//     // PCF (Percentage Closer Filtering)
+//     float shadow = 0.0;
+//     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+//     for(int x = -1; x <= 1; ++x)
+//     {
+//         for(int y = -1; y <= 1; ++y)
+//         {
+//             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+//             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+//         }    
+//     }
+//     shadow /= 9.0;
+    
+//     return shadow;
+// }
+float shadowCalculations(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
 {
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+ // Projeta para o espaço de recorte do light view
+     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    
-    //float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-    float bias = 0.005;
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+        return 0.0;
 
+    float closestDepth = texture(shadowMap, projCoords.xy).r;  // <- mantém linearizado [0,1]
+    float currentDepth = projCoords.z;
+
+    float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.0005);
+
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
     return shadow;
-}
+}  
 
 
 void main()
 {
     vec3 norm = normalize(normal);
     vec3 viewDirection = normalize(viewPos - fragPos);
-    vec3 lighting  = CalcDirLight(directional_light, norm, viewDirection);
+   // vec3 lighting  = CalcDirLight(directional_light, norm, viewDirection);
 
-//     for(int i = 0; i < point_lights_size; i++)
-//     {
-//         lighting  += CalcPointLight(point_lights[i], norm, fragPos, viewDirection);
-//     }
+    vec3 color = material.diffuse;
+    vec3 lightColor = vec3(0.7);
+    vec3 ambient = 0.3 * lightColor;
+    vec3 lightDir = normalize(vec3(0, 4, 1) - fragPos);
 
-//    for(int i = 0; i < spot_lights_size; i++)
-//    {   
-//        lighting  += CalcSpotLight(spot_lights[i], norm, fragPos, viewDirection);
-//    }
+     float diff = max(dot(lightDir, norm), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(viewPos - fragPos);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    float shadow = shadowCalculations(fragPosLightSpace, lightDir, norm);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
 
-    fragColor = vec4(lighting , 1.0);
-    //float depth = LinearizeDepth(gl_FragCoord.z) / far;
-    //fragColor = vec4(vec3(depth), 1.0);
+    // Converte para [0, 1]
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // Converte para [0, 1]
+    projCoords = projCoords * 0.5 + 0.5;
+
+    //fragColor = vec4(texture(shadowMap, projCoords.xy).rrr, 1.0);
+
+    fragColor = vec4(lighting, 1.0);
 }
 
 
@@ -147,10 +206,9 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     vec3 diffuse = light.base.color * directional_light.base.diffuse * (diff * material.diffuse);
     vec3 specular = directional_light.base.color * (spec * material.specular);
 
-    float shadow = shadowCalculations(fragPosLightSpace);
-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * light.base.color;
-    //return (ambient + diffuse + specular);
-    return lighting;
+    //float shadow = shadowCalculations(fragPosLightSpace, lightDirection);
+    //vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
+    return ambient + diffuse + specular;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)

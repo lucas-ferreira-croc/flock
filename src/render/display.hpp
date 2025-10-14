@@ -38,7 +38,7 @@ public:
 	std::shared_ptr<Shader> depthDebugShader;
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 private:
 	GLFWwindow* window;

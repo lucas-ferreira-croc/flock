@@ -59,6 +59,7 @@ void Mesh::render(Shader& shader)
         glActiveTexture(GL_TEXTURE0);
     }
     else{
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     glBindVertexArray(_VAO);

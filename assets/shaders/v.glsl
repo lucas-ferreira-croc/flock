@@ -22,7 +22,7 @@ void main()
 
     texCoords = textureCoordinates;
     fragPos = vec3(model * vec4(position, 1.0));
-    fragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);
+    fragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
     
     gl_Position = projection * view * model * vec4(position, 1.0);
 }
