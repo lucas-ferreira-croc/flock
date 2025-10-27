@@ -74,6 +74,7 @@ void Update(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& displ
     //glDisable(GL_CULL_FACE);
     
     // Renderizar todos os objetos da cena no depth buffer
+    glCullFace(GL_FRONT);
     for(auto entity : getSystemEntities())
     {
         // Pular skybox - não projeta sombra
@@ -97,7 +98,7 @@ void Update(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& displ
     }
     
     // Restaurar culling normal
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     

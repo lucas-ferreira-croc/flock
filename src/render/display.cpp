@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "texture/texture.hpp"
+#include "ui/imgui_config.hpp"
 
 Display::Display(unsigned int windowWidth, unsigned int windowHeight)
 	: _windowWidth(windowWidth), _windowHeight(windowHeight),
@@ -223,4 +224,48 @@ void Display::renderDepthBufferDebug()
     _depthbufferShader->setInt("shadowMap", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
+}
+
+// UI
+
+void Display::initializeUI()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	// io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+	ImGui::StyleColorsDark();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
+
+	ImGui_ImplGlfw_InitForOpenGL(getWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void Display::renderUI()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Hierarchy");
+    ImGui::End();
+
+    ImGui::render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Display::destroyUI()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }

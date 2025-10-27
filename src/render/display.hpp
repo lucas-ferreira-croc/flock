@@ -32,6 +32,9 @@ public:
 	void renderDepthBufferDebug();
 	unsigned int framebuffer;
 	
+	void initializeUI();
+	void renderUI();
+	void destroyUI();
 
 	// depthbuffer
 	std::shared_ptr<Shader> _depthbufferShader;

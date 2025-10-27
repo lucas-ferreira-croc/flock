@@ -8,7 +8,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "ui/imgui_config.hpp"
 #include "log/logger.hpp"
 
 #include "render/light/directional_light.hpp"
@@ -23,6 +22,20 @@
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
 #include "ecs/systems/physics_system.hpp"
+#include "ecs/systems/gui_system.hpp"
+#include "ecs/systems/picking_system.hpp"
+
+double Game::mouse_x = 0.0f, Game::mouse_y = 0.0f;
+bool Game::mouseClick = false;
+
+void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if(!(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS))
+        return;
+    
+    glfwGetCursorPos(window, &mouse_x, &mouse_y);
+    mouseClick = true;
+}
 
 Game::Game()
 {
@@ -47,32 +60,12 @@ void Game::initialize()
     glfwSetWindowUserPointer(_display->getWindow(), _camera.get());
     glfwSetKeyCallback(_display->getWindow(), &Camera::keyCallback);
     glfwSetCursorPosCallback(_display->getWindow(), &Camera::cursorPositionCallback);
+    glfwSetMouseButtonCallback(_display->getWindow(), &Game::mouse_click_callback);
     ///
 
     /// Imgui Session
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-    ImGui::StyleColorsDark();
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-
-    ImGui_ImplGlfw_InitForOpenGL(_display->getWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    _display->initializeUI();
     /// end of Imgui Session
-
-
-    // opengl code
-   
 }
 
 void Game::loadLevel(int level)
@@ -80,6 +73,8 @@ void Game::loadLevel(int level)
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
     _registry->addSystem<PhysicsSystem>(9.8f);
+    _registry->addSystem<GUISystem>();
+    _registry->addSystem<PickingSystem>();
 
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
@@ -126,8 +121,9 @@ void Game::loadLevel(int level)
 
     Entity cubemap = _registry->createEntity();
     cubemap.addComponent<TransformComponent>(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
-    cubemap.addComponent<ShaderComponent>(cubemapVS, cubemapFS);
     cubemap.addComponent<CubemapComponent>(cubemapFaces);
+    cubemap.addComponent<IDComponent>("cubemap");
+    cubemap.addComponent<ShaderComponent>(cubemapVS, cubemapFS);
     cubemap.getComponent<ShaderComponent>().addUniformInt("skybox", 0);
     entities.push_back(cubemap);
 
@@ -141,7 +137,7 @@ void Game::loadLevel(int level)
     backpack.getComponent<ShaderComponent>().setPointLights(pointLights);
     backpack.getComponent<ShaderComponent>().setSpotLights(spotLights);
     backpack.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
-    
+    backpack.addComponent<IDComponent>("backpack");
     _registry->getSystem<PhysicsSystem>().AddBody(backpack);
     entities.push_back(backpack);
     
@@ -157,6 +153,7 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 0.0f);
+    teapot.addComponent<IDComponent>("teapot");
     _registry->getSystem<PhysicsSystem>().AddBody(teapot);
     entities.push_back(teapot);
     
@@ -170,10 +167,10 @@ void Game::loadLevel(int level)
     //plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     plane.getComponent<ShaderComponent>().setPointLights(pointLights);
-    plane.getComponent<ShaderComponent>().setSpotLights(spotLights);
-    
+    plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
     plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     entities.push_back(plane);
+    plane.addComponent<IDComponent>("plane");
 
     _registry->getSystem<PhysicsSystem>().AddBody(plane);
     
@@ -216,6 +213,25 @@ void Game::processInput()
             shaderComponent.reset();
         }
     }
+
+    if(mouseClick)
+    {
+        float x = (2.0f * mouse_x) / WINDOW_WIDTH - 1.0f;
+        float y = 1.0f - (2.0f * mouse_y) / WINDOW_HEIGHT;
+        glm::vec4 ndc4d = glm::vec4(x, y, -1.0f, 1.0f);
+
+
+        glm::vec4 rayView4d = glm::inverse(projection) * ndc4d;
+        rayView4d.z = -1.0f; // direção para frente no space view
+        rayView4d.w = 0.0f;
+
+       glm::mat4 invView = glm::inverse(_camera->getLookAt()); // assumindo getLookAt() retorna view matrix
+        glm::vec3 rayDirectionWorld = glm::normalize(glm::vec3(invView * rayView4d));
+        glm::vec3 rayOrigin = _camera->getPosition();
+
+        _registry->getSystem<PickingSystem>().Update(rayOrigin, rayDirectionWorld);
+        mouseClick = false;
+    }
 }
 void Game::update()
 {
@@ -234,34 +250,19 @@ void Game::update()
     _camera->update(_deltaTime);
     
     _registry->getSystem<MovementSystem>().Update(_deltaTime);
-    _registry->getSystem<PhysicsSystem>().Update(_deltaTime);
+   // _registry->getSystem<PhysicsSystem>().Update(_deltaTime);
     _registry->update();
 }
 void Game::render()
 {
     _registry->getSystem<RenderSystem>().Update(projection, _camera, *_display);
-
-  //// ImGui
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::Begin("Debug");
-    ImGui::End();
-
-    ImGui::render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    _display->swapBuffers();
-
+    _registry->getSystem<GUISystem>().Update();
+    //// ImGui
+    //_display->renderUI();
     ///
+    _display->swapBuffers();
 }
 
 void Game::destroy(){
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    _display->destroyUI();
 }

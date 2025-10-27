@@ -28,7 +28,7 @@ public:
     void render();
     void destroy();
 
-    
+    static void mouse_click_callback(GLFWwindow* window, int button, int action, int mods);
 private:
     std::unique_ptr<Registry> _registry;
 
@@ -55,6 +55,11 @@ private:
 
     std::vector<Entity> entities;
     std::unique_ptr<Model> model;
+
+
+    ///
+    static double mouse_x, mouse_y;
+    static bool mouseClick;
 };
 
 #endif
