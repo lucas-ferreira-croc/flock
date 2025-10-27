@@ -42,12 +42,15 @@ set(COMPONENTS_SOURCE
     src/ecs/components/material_component.hpp
     src/ecs/components/physics_shape_component.hpp
     src/ecs/components/cubemap_component.hpp
+    src/ecs/components/id_component.hpp
 )
 
 set(SYSTEMS_SOURCE
     src/ecs/systems/movement_system.hpp
     src/ecs/systems/render_system.hpp
     src/ecs/systems/physics_system.hpp
+    src/ecs/systems/gui_system.hpp
+    src/ecs/systems/picking_system.hpp.hpp
 )
 
 set(RENDER_SOURCE

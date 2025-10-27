@@ -144,16 +144,25 @@ float shadowCalculations(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
      vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+    if (projCoords.z > 1.0)
         return 0.0;
 
     float closestDepth = texture(shadowMap, projCoords.xy).r;  // <- mantém linearizado [0,1]
     float currentDepth = projCoords.z;
 
-    float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.0005);
-
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-    return shadow;
+    float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+    
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; x++)
+    {   
+        for(int y = -1; y <= 1; y++)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x,y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    return shadow /= 9.0;
 }  
 
 
@@ -162,6 +171,17 @@ void main()
     vec3 norm = normalize(normal);
     vec3 viewDirection = normalize(viewPos - fragPos);
    // vec3 lighting  = CalcDirLight(directional_light, norm, viewDirection);
+
+
+    // for(int i = 0; i < MAX_POINT_LIGHTS; i++;)
+    // {
+    //     lighting += CalcPointLight(point_lights[i], normal, fragPos, viewDir);
+    // }
+
+    // for(int i = 0; i < MAX_SPOT_LIGHTS; i++;)
+    // {
+    //     lighting += CalcSpotLight(spot_lights[i], normal, fragPos, viewDir);
+    // }
 
     vec3 color = material.diffuse;
     vec3 lightColor = vec3(0.7);
