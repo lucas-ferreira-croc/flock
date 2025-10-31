@@ -7,7 +7,8 @@
 struct IDComponent
 {
     std::string _name;
-    IDComponent(const std::string name = "")
+    bool isPicked = false;
+    IDComponent(const std::string name = "", bool isPicked = false)
     {
         this->_name = name;
         Logger::warning(_name);

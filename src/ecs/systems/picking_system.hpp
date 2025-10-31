@@ -16,7 +16,7 @@ public:
 
     void Update(const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
     {
-         const float epsilon = 2.0f; // aumenta pra facilitar debug (ajusta depois)
+         const float epsilon = 1.5f; // aumenta pra facilitar debug (ajusta depois)
         int i = 0;
         for(auto& entity : getSystemEntities())
         {
@@ -39,6 +39,8 @@ public:
                 //transform.position = glm::vec3(hitPoint.x, hitPoint.y, meshZ);
 
                 auto id = entity.getComponent<IDComponent>()._name;
+                entity.getComponent<IDComponent>().isPicked = true;
+                Logger::warning(id);
             }
         }
     }

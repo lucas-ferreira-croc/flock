@@ -39,6 +39,12 @@ public:
 
             ImGui::Separator();
             ImGui::PopID();
+
+            if(idComponent.isPicked)
+            {
+                ImGui::Begin(idComponent._name.c_str());
+                ImGui::End();
+            }
         }
         
         ImGui::End();

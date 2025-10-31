@@ -24,6 +24,7 @@
 #include "ecs/systems/physics_system.hpp"
 #include "ecs/systems/gui_system.hpp"
 #include "ecs/systems/picking_system.hpp"
+#include "node_graph/node_graph.hpp"
 
 double Game::mouse_x = 0.0f, Game::mouse_y = 0.0f;
 bool Game::mouseClick = false;
