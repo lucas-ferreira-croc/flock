@@ -9,6 +9,7 @@
 #include "ecs/components/physics_shape_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
+#include "ecs/components/fabrik_component.hpp"
 
 enum class RenderPass 
 {
@@ -270,7 +271,15 @@ void renderPass(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& d
             mesh.model->render(*shader);
         }
 
-
+        if(entity.hasComponent<FABRIKComponent>())
+        {
+            auto& fabrik = entity.getComponent<FABRIKComponent>();
+            fabrik.shader->bind();
+            fabrik.shader->setMat4("view", camera->getLookAt());
+            fabrik.shader->setMat4("proj", projection);
+            glBindVertexArray(fabrik.vao);
+            glDrawArrays(GL_LINE_STRIP, 0, fabrik.joints.size());
+        }
     }
 }
 
