@@ -18,16 +18,29 @@
 #include "ecs/components/shader_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
+#include "ecs/components/cloth_component.hpp"
+#include "ecs/components/FABRIK_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
 #include "ecs/systems/movement_system.hpp"
 #include "ecs/systems/physics_system.hpp"
 #include "ecs/systems/gui_system.hpp"
 #include "ecs/systems/picking_system.hpp"
-#include "node_graph/node_graph.hpp"
+#include "ecs/systems/xpbd_system.hpp"
+#include "ecs/systems/ik_system.hpp"
+
+// #include "node_graph/node_graph.hpp"
+// #include "node_graph/output_node.hpp"
+// #include "node_graph/node_ui.hpp"
 
 double Game::mouse_x = 0.0f, Game::mouse_y = 0.0f;
 bool Game::mouseClick = false;
+bool simulating = false;
+//NodeUIManager* uiManager;
+//NodeGraph* graph;
+//std::shared_ptr<OutputNode> outputNode;
+//std::vector<std::shared_ptr<BaseNode>> nodes_;
+
 
 void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -49,6 +62,7 @@ Game::~Game()
 
 void Game::initialize()
 {
+
     _display = std::make_shared<Display>(WINDOW_WIDTH, WINDOW_HEIGHT);
     _display->initializeWindow();
 
@@ -66,6 +80,15 @@ void Game::initialize()
 
     /// Imgui Session
     _display->initializeUI();
+
+    // uiManager = new NodeUIManager();
+    // graph = new NodeGraph();
+    // outputNode = std::make_shared<OutputNode>(1);
+    // nodes_.push_back(outputNode);
+    // graph->addNode(outputNode);
+    // graph->_connections.clear();
+    // uiManager->connections.clear();
+    // graph->computeAll();
     /// end of Imgui Session
 }
 
@@ -76,6 +99,8 @@ void Game::loadLevel(int level)
     _registry->addSystem<PhysicsSystem>(9.8f);
     _registry->addSystem<GUISystem>();
     _registry->addSystem<PickingSystem>();
+    _registry->addSystem<XPBDSystem>();
+    _registry->addSystem<IKSystem>();
 
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
@@ -159,10 +184,10 @@ void Game::loadLevel(int level)
     entities.push_back(teapot);
     
 
-    
     Entity plane = _registry->createEntity();
-    plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(-90.0f, 0.0f, 0.0f));
-    plane.addComponent<MeshComponent>(MeshType::PLANE);
+    //plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(-90.0f, 0.0f, 0.0f));
+    plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\plane.obj");
     plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
     //plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
@@ -172,9 +197,68 @@ void Game::loadLevel(int level)
     plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
     entities.push_back(plane);
     plane.addComponent<IDComponent>("plane");
+    plane.addComponent<ClothComponent>(plane.getComponent<MeshComponent>().model);
 
     _registry->getSystem<PhysicsSystem>().AddBody(plane);
     
+
+
+    Entity IKtarget = _registry->createEntity();
+    IKtarget.addComponent<TransformComponent>(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
+    IKtarget.addComponent<MeshComponent>(MeshType::SPHERE);
+    IKtarget.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    IKtarget.addComponent<MaterialComponent>(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 16.0f);
+    IKtarget.getComponent<ShaderComponent>().setPointLights(pointLights);
+    IKtarget.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    IKtarget.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
+    IKtarget.addComponent<IDComponent>("IKtarget");
+    entities.push_back(IKtarget);
+
+
+    std::vector<glm::vec3> spheresVectors;
+    
+    Entity spheres0 = _registry->createEntity();
+    spheres0.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
+    spheres0.addComponent<MeshComponent>(MeshType::SPHERE);
+    spheres0.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    spheres0.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
+    spheres0.getComponent<ShaderComponent>().setPointLights(pointLights);
+    spheres0.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    spheres0.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
+    spheres0.addComponent<IDComponent>("sphere0");
+
+    Entity spheres1 = _registry->createEntity();
+    spheres1.addComponent<TransformComponent>(glm::vec3(7.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
+    spheres1.addComponent<MeshComponent>(MeshType::SPHERE);
+    spheres1.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    spheres1.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
+    spheres1.getComponent<ShaderComponent>().setPointLights(pointLights);
+    spheres1.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    spheres1.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
+    spheres1.addComponent<IDComponent>("sphere1");
+
+
+    Entity spheres2 = _registry->createEntity();
+    spheres2.addComponent<TransformComponent>(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
+    spheres2.addComponent<MeshComponent>(MeshType::SPHERE);
+    spheres2.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    spheres2.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
+    spheres2.getComponent<ShaderComponent>().setPointLights(pointLights);
+    spheres2.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    spheres2.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
+    spheres2.addComponent<IDComponent>("sphere2");
+    
+    spheresVectors.push_back(spheres0.getComponent<TransformComponent>().position);
+    spheresVectors.push_back(spheres1.getComponent<TransformComponent>().position);
+    spheresVectors.push_back(spheres2.getComponent<TransformComponent>().position);
+
+    spheres0.addComponent<FABRIKComponent>(spheresVectors, IKtarget.getComponent<TransformComponent>().position);
+    spheres0.getComponent<FABRIKComponent>().shader->setMat4("view", _camera->getLookAt());
+    spheres0.getComponent<FABRIKComponent>().shader->setMat4("proj", projection);
+
+    entities.push_back(spheres0);
+    entities.push_back(spheres1);
+    entities.push_back(spheres2);
 }
 
 void Game::setup()
@@ -196,6 +280,7 @@ void Game::run()
 
 void Game::processInput()
 {
+
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(_display->getWindow(), true);
@@ -204,6 +289,10 @@ void Game::processInput()
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_M) == GLFW_PRESS)
     {
         _camera->flipDislodgeMouse();
+    }
+    if (glfwGetKey(_display->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        simulating = !simulating;
     }
 
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_R) == GLFW_PRESS)
@@ -251,16 +340,51 @@ void Game::update()
     _camera->update(_deltaTime);
     
     _registry->getSystem<MovementSystem>().Update(_deltaTime);
-   // _registry->getSystem<PhysicsSystem>().Update(_deltaTime);
+
+    if(simulating)
+    {
+        glm::vec3 target;
+        for(auto& entity : _registry->getSystem<GUISystem>().getSystemEntities())
+        {
+            if(entity.getComponent<IDComponent>()._name == "IKtarget")
+                target = entity.getComponent<TransformComponent>().position;
+        }
+        //_registry->getSystem<XPBDSystem>().Update(_deltaTime);
+        _registry->getSystem<IKSystem>().Update(target);
+
+        std::vector<glm::vec3> joints;
+        for(auto& entity : _registry->getSystem<GUISystem>().getSystemEntities())
+        {
+            if(entity.getComponent<IDComponent>()._name == "sphere0")
+                joints = entity.getComponent<FABRIKComponent>().joints;
+        }
+
+        for(auto& entity : _registry->getSystem<GUISystem>().getSystemEntities())
+        {
+            if(entity.getComponent<IDComponent>()._name == "sphere0")
+                entity.getComponent<TransformComponent>().position = joints[0];
+
+            if(entity.getComponent<IDComponent>()._name == "sphere1")
+                entity.getComponent<TransformComponent>().position = joints[1];
+
+            if(entity.getComponent<IDComponent>()._name == "sphere2")
+                entity.getComponent<TransformComponent>().position = joints[2];
+        }
+    }
+
     _registry->update();
 }
 void Game::render()
 {
     _registry->getSystem<RenderSystem>().Update(projection, _camera, *_display);
-    _registry->getSystem<GUISystem>().Update();
+    _registry->getSystem<GUISystem>().Update(_camera->getLookAt(), projection);
     //// ImGui
     //_display->renderUI();
     ///
+    // for(std::shared_ptr<BaseNode> node : nodes_)
+    // {
+    //     uiManager->renderNode(*node);
+    // }
     _display->swapBuffers();
 }
 

@@ -57,6 +57,8 @@ set(COMPONENTS_SOURCE
     src/ecs/components/physics_shape_component.hpp
     src/ecs/components/cubemap_component.hpp
     src/ecs/components/id_component.hpp
+    src/ecs/components/cloth_component.hpp
+    src/ecs/components/fabrik_component.hpp
 )
 
 set(SYSTEMS_SOURCE
@@ -64,7 +66,9 @@ set(SYSTEMS_SOURCE
     src/ecs/systems/render_system.hpp
     src/ecs/systems/physics_system.hpp
     src/ecs/systems/gui_system.hpp
-    src/ecs/systems/picking_system.hpp.hpp
+    src/ecs/systems/picking_system.hpp
+    src/ecs/systems/xpbd_system.hpp
+    src/ecs/systems/ik_system.hpp
 )
 
 set(RENDER_SOURCE
@@ -113,6 +117,14 @@ set(IMGUI_SOURCE
     deps/imgui/backends/imgui_impl_opengl3.cpp
 )
 
+set(IMGUIZMO_SOURCE
+    deps/imGuizmo/ImGuizmo.cpp
+    deps/imGuizmo/GraphEditor.cpp
+    deps/imGuizmo/ImCurveEdit.cpp
+    deps/imGuizmo/ImGradient.cpp
+    deps/imGuizmo/ImSequencer.cpp
+)
+
 set(SHADERS_SOURCE
 	assets/shaders/f.glsl
     assets/shaders/v.glsl
@@ -144,6 +156,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/physics PREFIX "src/physics" F
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FILES ${IMGUI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imGuizmo PREFIX "deps/imGuizmo" FILES ${IMGUIZMO_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/glad PREFIX "deps/glad" FILES ${GLAD_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/assets PREFIX "assets/shaders" FILES ${SHADERS_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/node_graph PREFIX "src/node_graph" FILES ${NODE_GRAPH_SOURCE})
@@ -153,6 +166,7 @@ add_executable(flock
 	${MAIN_SOURCE}
 	${RENDER_SOURCE}
 	${IMGUI_SOURCE}
+	${IMGUIZMO_SOURCE}
 	${UI_SOURCE}
  	${TEXTURE_SOURCE}
 	${GLAD_SOURCE}
