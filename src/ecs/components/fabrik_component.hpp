@@ -16,6 +16,7 @@ struct FABRIKComponent
 
     float tolerance = 0.1f;
     float totalLength;
+    int maxIterations = 10;
 
     unsigned int vao;
     unsigned int vbo;
@@ -54,6 +55,50 @@ struct FABRIKComponent
         }
     }
 
+    void backward() 
+    {
+        joints.back() = target;
+
+        // end effector as target;
+        for(int i = (int)joints.size() - 2; i >= 0; i--) 
+        {
+            glm::vec3 jointNextJoint = joints[i + 1] - joints[i]; 
+            float dist = glm::length(jointNextJoint);
+            if(dist <= 1e-6f)
+            {
+                continue;
+            }
+            
+            float lambda = lengths[i] / dist;
+            // find new position
+            glm::vec3 position = (1.0f - lambda) * joints[i + 1] + lambda * joints[i];
+            joints[i] = position;
+        }
+    }
+
+
+    void forward() 
+    {
+        // forward reaching, root at initial position
+        joints[0] = origin;
+
+        for(int i = 0; i < joints.size() - 1; i++)
+        {
+            glm::vec3 jointNextJoint = (joints[i + 1] - joints[i]);
+            float dist = glm::length(jointNextJoint);
+            if(dist <= 1e-6f)
+            {
+                continue;
+            }
+
+            float lambda = lengths[i] / dist;
+
+            // find new position
+            glm::vec3 position = (1.0f - lambda) * joints[i] + lambda * joints[i + 1];
+            joints[i + 1] = position;
+        }
+    }
+
     void solve(glm::vec3& position)
     {
         float distance = glm::length(joints[0] - target);
@@ -61,14 +106,26 @@ struct FABRIKComponent
         {
             for(int i = 0; i < joints.size() -1; i++)
             {
-                float r = glm::length(target - joints[i]);
-                float lambda = lengths[i] / r;
+                float jointTarget = glm::length(target - joints[i]);
+                float lambda = lengths[i] / jointTarget;
 
-                joints[i + 1] = (1 - lambda) * joints[i] + lambda * target;
-                Logger::log("solving IK when distance > totalLength");
+                joints[i + 1] = (1.0f - lambda) * joints[i] + lambda * target;
             }
+            Logger::warning("computing ik for out of reach target");
         }
-        Logger::err("x_target = " + std::to_string(target.x) + "; y = " + std::to_string(target.y) + "; z = " + std::to_string(target.z));
+        else
+        {
+            int bCount = 0;
+            float dif = glm::length(joints.back() - target);
+            while (dif > tolerance && bCount < maxIterations)
+            {
+                backward();
+                forward();
+                dif = glm::length(joints.back() - target);
+                bCount++;
+            }
+            Logger::err("computing ik for inbouds target");
+        }
         
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferSubData(GL_ARRAY_BUFFER, 0, joints.size() * sizeof(glm::vec3), joints.data());

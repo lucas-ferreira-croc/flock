@@ -13,9 +13,7 @@ class GUISystem : public System
 public:
     GUISystem()
     {
-        Logger::log("requererra");
         requireComponent<IDComponent>();
-        Logger::log("requiriu");
     }
 
     void Update()
@@ -23,7 +21,12 @@ public:
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImVec2 window_pos = ImVec2(20, 20);       
+        ImVec2 window_size = ImVec2(350, 500);    
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(window_size, ImGuiCond_Once);
         ImGui::Begin("Entities");
+    
         for(auto& entity : getSystemEntities())
         {
             auto& idComponent = entity.getComponent<IDComponent>();
