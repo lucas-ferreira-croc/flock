@@ -24,11 +24,12 @@ struct FABRIKComponent
 
     FABRIKComponent(std::vector<glm::vec3> joints = std::vector<glm::vec3>(), const glm::vec3& target = glm::vec3(0.0f))
     {
-        this->target = target;
-        this->joints = joints;
-        totalLength = 0.0f;
         if(joints.size() != 0)
         {
+            this->target = target;
+            this->joints = joints;
+            this->origin = joints[0];
+            totalLength = 0.0f;
             for(int i = 0; i < joints.size() - 1; i++)
             {   
                 lengths.push_back(glm::length(joints[i] - joints[i + 1]));

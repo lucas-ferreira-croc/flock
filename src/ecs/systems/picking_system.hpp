@@ -16,8 +16,7 @@ public:
 
     void Update(const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
     {
-         const float epsilon = 1.5f; // aumenta pra facilitar debug (ajusta depois)
-        int i = 0;
+         const float epsilon = 0.5f; // aumenta pra facilitar debug (ajusta depois)
         for(auto& entity : getSystemEntities())
         {
             auto& transform = entity.getComponent<TransformComponent>();
@@ -36,14 +35,25 @@ public:
                 if (t <= 0.0f) continue; 
 
                 glm::vec3 hitPoint = rayOrigin + t * rayDirection;
-                //transform.position = glm::vec3(hitPoint.x, hitPoint.y, meshZ);
 
                 auto id = entity.getComponent<IDComponent>()._name;
+                if(previousPicked != id)
+                {
+                    for(auto& entity : getSystemEntities())
+                    {
+                        if(entity.getComponent<IDComponent>()._name == previousPicked)
+                        {
+                            entity.getComponent<IDComponent>().isPicked = false;
+                        }
+                    }
+                }
+                previousPicked = id;
                 entity.getComponent<IDComponent>().isPicked = true;
-                Logger::warning(id);
             }
         }
     }
+
+    std::string previousPicked;
 };
 
 #endif

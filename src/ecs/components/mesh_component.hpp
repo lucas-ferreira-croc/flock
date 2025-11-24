@@ -26,7 +26,7 @@ struct MeshComponent
             break;
 
             case MeshType::PLANE:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\plane.fbx";
+                path = "C:\\dev\\shader\\flock\\assets\\models\\plane1.fbx";
                 break;
             break;
 

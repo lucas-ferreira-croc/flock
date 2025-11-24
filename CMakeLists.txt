@@ -117,6 +117,14 @@ set(IMGUI_SOURCE
     deps/imgui/backends/imgui_impl_opengl3.cpp
 )
 
+set(IMGUIZMO_SOURCE
+    deps/imGuizmo/ImGuizmo.cpp
+    deps/imGuizmo/GraphEditor.cpp
+    deps/imGuizmo/ImCurveEdit.cpp
+    deps/imGuizmo/ImGradient.cpp
+    deps/imGuizmo/ImSequencer.cpp
+)
+
 set(SHADERS_SOURCE
 	assets/shaders/f.glsl
     assets/shaders/v.glsl
@@ -148,6 +156,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/physics PREFIX "src/physics" F
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/game PREFIX "src/game" FILES ${GAME_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${MAIN_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FILES ${IMGUI_SOURCE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imGuizmo PREFIX "deps/imGuizmo" FILES ${IMGUIZMO_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/glad PREFIX "deps/glad" FILES ${GLAD_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/assets PREFIX "assets/shaders" FILES ${SHADERS_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/node_graph PREFIX "src/node_graph" FILES ${NODE_GRAPH_SOURCE})
@@ -157,6 +166,7 @@ add_executable(flock
 	${MAIN_SOURCE}
 	${RENDER_SOURCE}
 	${IMGUI_SOURCE}
+	${IMGUIZMO_SOURCE}
 	${UI_SOURCE}
  	${TEXTURE_SOURCE}
 	${GLAD_SOURCE}

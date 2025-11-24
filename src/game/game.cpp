@@ -377,7 +377,7 @@ void Game::update()
 void Game::render()
 {
     _registry->getSystem<RenderSystem>().Update(projection, _camera, *_display);
-    _registry->getSystem<GUISystem>().Update();
+    _registry->getSystem<GUISystem>().Update(_camera->getLookAt(), projection);
     //// ImGui
     //_display->renderUI();
     ///
