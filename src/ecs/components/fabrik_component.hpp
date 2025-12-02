@@ -100,7 +100,7 @@ struct FABRIKComponent
         }
     }
 
-    void solve(glm::vec3& position)
+    void solve()
     {
         float distance = glm::length(joints[0] - target);
         if(distance > totalLength) 
@@ -133,4 +133,84 @@ struct FABRIKComponent
     }
 };
 
+
+struct MultiEndedFABRIKComponent
+{
+    std::vector<FABRIKComponent> chains;
+
+    MultiEndedFABRIKComponent(std::vector<FABRIKComponent> chains = std::vector<FABRIKComponent>())
+    {
+    }
+
+    void addChain(std::vector<glm::vec3> joints, const glm::vec3& target)
+    {
+        chains.push_back({joints, target});
+    }
+    
+    std::vector<glm::vec3> buildChain(glm::vec3& start, glm::vec3& end, int numSegments)
+    {
+        std::vector<glm::vec3> joints;
+        if(numSegments < 1)
+        {
+            joints.push_back(start);
+            joints.push_back(end);
+            return joints;
+        }
+
+        glm::vec3 step = (end - start) / static_cast<float>(numSegments);
+
+        for(int i = 0; i <= numSegments; i++)
+        {
+            joints.push_back(start + step * static_cast<float>(i));
+        }
+        return joints;
+    }
+
+    void update(std::vector<glm::vec3> entityPositions)
+    {
+        if(chains.size() < 3) return;
+
+        chains[0].origin = entityPositions[0];
+        chains[0].joints[0] = entityPositions[0];
+
+        for(int i = 1; i < chains.size(); i++)
+        {
+            int idx = std::min<size_t>(i + 1, entityPositions.size() - 1);
+            chains[i].target = entityPositions[idx];
+        }
+
+        for(int i = 1; i < chains.size(); i++)
+        {
+            chains[i].backward();
+        }
+
+        glm::vec3 centroid(0.0f);
+        int count = 0;
+        for(int i = 1; i < chains.size(); i++)
+        {
+            if(chains[i].joints.size() > 1)
+            {
+                centroid += chains[i].joints[0];
+                ++count;
+            }
+        }
+
+        if(count == 0) return;
+        centroid /= float(count);
+
+        chains[0].target = centroid;
+        chains[0].solve();
+
+        glm::vec3 attach = chains[0].joints.back();
+
+        for(int i = 1; i < chains.size(); i++)
+        {
+            chains[i].origin = attach;
+            chains[i].joints[0] = attach;
+            chains[i].forward();
+            glBindBuffer(GL_ARRAY_BUFFER, chains[i].vbo);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, chains[i].joints.size() * sizeof(glm::vec3), chains[i].joints.data());
+        }
+    }
+};
 #endif

@@ -56,7 +56,7 @@ private:
     std::vector<Entity> entities;
     std::unique_ptr<Model> model;
 
-
+    std::vector<glm::vec3> spheresVectors;
     ///
     static double mouse_x, mouse_y;
     static bool mouseClick;

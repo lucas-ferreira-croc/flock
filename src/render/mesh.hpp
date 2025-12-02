@@ -36,6 +36,7 @@ public:
     std::vector<unsigned int> indices;
     std::vector<MeshTexture> textures;
 
+    unsigned int& getVBO() { return _VBO; };
 protected:
     unsigned int _VAO, _VBO, _EBO;
     

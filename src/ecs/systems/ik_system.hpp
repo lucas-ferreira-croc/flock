@@ -19,7 +19,27 @@ public:
         for(auto& entity : getSystemEntities())
         {   
             entity.getComponent<FABRIKComponent>().target = target;
-            entity.getComponent<FABRIKComponent>().solve(entity.getComponent<TransformComponent>().position);
+            entity.getComponent<FABRIKComponent>().solve();
+        }
+    }
+};
+
+class MultiEndedIKSystem : public System 
+{
+public:
+    MultiEndedIKSystem()
+    {
+        requireComponent<MultiEndedFABRIKComponent>();
+        requireComponent<TransformComponent>();
+    }
+
+    void Update(std::vector<glm::vec3>& entityPositions)
+    {
+        for(auto& entity : getSystemEntities())
+        {   
+            Logger::log("updting multi ended ik system");
+            auto& multiEndedFabrik =  entity.getComponent<MultiEndedFABRIKComponent>();
+            multiEndedFabrik.update(entityPositions);
         }
     }
 };

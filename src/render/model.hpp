@@ -37,6 +37,7 @@ public:
     
     void render(Shader& shader);
     
+    std::vector<Mesh>& getMeshes() { return _meshes; };
 private:
     std::vector<Mesh> _meshes;
     std::string _directory;
