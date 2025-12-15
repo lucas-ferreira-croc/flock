@@ -12,19 +12,22 @@ std::vector<std::shared_ptr<BaseNode>> nodes;
 
 void NodeUIManager::renderNode(BaseNode& node)
 {
+    Logger::err("renderNode entrance");
+
     int id = node._id;
     std::string name = node._name;
-
+    
     NodeUIState& state = nodeStates[id];
+    Logger::err("renderNode entrance");
     ImVec2 scrollOffset(ImGui::GetScrollX(), ImGui::GetScrollY());
-
+    
     if(state.position.x == 0 && state.position.y == 0)
         state.position = ImVec2(100 + id * 180, 250);
-
+    
     ImVec2 nodeSize = ImVec2(200, 100);
     ImVec2 start = ImVec2(state.position.x - scrollOffset.x, state.position.y - scrollOffset.y);
     ImVec2 end = ImVec2(start.x - nodeSize.x, start.y - nodeSize.y);
-
+    
     ImGui::SetCursorScreenPos(start);
     ImGui::PushID(id);
     ImGui::BeginGroup();

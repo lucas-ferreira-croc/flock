@@ -1,13 +1,16 @@
 #ifndef GUI_SYSTEM_HPP
 #define GUI_SYSTEM_HPP
 
+#include <filesystem>
+
 #include "ecs/components/id_component.hpp"
 #include "ecs/components/transform_component.hpp"
 #include "ecs/ecs.hpp"
 #include "ui/imgui_config.hpp"
 #include "ImGuizmo/ImGuizmo.h"
 #include "log/logger.hpp"
-
+#include "render/display.hpp"
+#include "integration/SO/file_dialog.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
@@ -97,20 +100,25 @@ public:
         ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(objectMatrix), NULL, useSnap ? &snap[0] : NULL);
     }
 
-    void Update(glm::mat4& view, glm::mat4& projection)
+    void drawHierarchy()
     {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+        ImGui::Begin("Hierarchy");
+        for (auto& e : getSystemEntities())
+        {
+            auto& id = e.getComponent<IDComponent>();
+            if(ImGui::Selectable(id._name.c_str(), id.isPicked))
+            {
+                for (auto& o : getSystemEntities())
+                    o.getComponent<IDComponent>().isPicked = false;
 
-        ImGuizmo::SetOrthographic(false);
-        ImGui::NewFrame();
-        ImGuizmo::BeginFrame();
-        ImVec2 window_pos = ImVec2(20, 20);       
-        ImVec2 window_size = ImVec2(350, 500);    
-        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always);
-        ImGui::SetNextWindowSize(window_size, ImGuiCond_Once);
-        ImGui::Begin("Entities");
-    
+                id.isPicked = true;
+            }
+        }
+        ImGui::End();
+    }
+
+    void drawGizmo(glm::mat4& view, glm::mat4& projection)
+    {
         for(auto& entity : getSystemEntities())
         {
             if(entity.hasComponent<IDComponent>())
@@ -140,25 +148,106 @@ public:
                     ImGuizmo::PopID();
                 }
             }
+        }
+    }
 
-            auto& idComponent = entity.getComponent<IDComponent>();
-            ImGui::PushID(entity.getId());
-            ImGui::Text("Entity: %s", idComponent._name.c_str());
-            if(entity.hasComponent<TransformComponent>())
+    void drawInspector(glm::mat4& view, glm::mat4& projection)
+    {
+        ImGui::Begin("Inspector");
+
+        for (auto& e : getSystemEntities())
+        {
+            auto& id = e.getComponent<IDComponent>();
+            if(!id.isPicked) continue;
+
+            
+            ImGui::Text("Entity: %s", id._name.c_str());
+            if(e.hasComponent<TransformComponent>())
             {
-                auto& transformComponent = entity.getComponent<TransformComponent>();
-                ImGui::SliderFloat3("Position", glm::value_ptr(transformComponent.position), -100.0f, 100.0f, "%.3f",  0.1f); ImGui::NewLine();
-                ImGui::SliderFloat3("Rotation", glm::value_ptr(transformComponent.rotation), -360.0f, 360.0f, "%.3f", 0.1f); ImGui::NewLine();
-                ImGui::SliderFloat3("Scale", glm::value_ptr(transformComponent.scale), 1.0f, 100.0f, "%.3f", 0.1f); ImGui::NewLine();
+                ImGui::Text("Transform Component:");
+                drawGizmo(view, projection);
             }
 
-            ImGui::Separator();
-            ImGui::PopID();
+            if(e.hasComponent<MaterialComponent>())
+            {
+                ImGui::Text("Material Component:");
+                auto& m = e.getComponent<MaterialComponent>();
+                ImGui::DragFloat3("Ambient", glm::value_ptr(m.ambient), 0.1f);
+                ImGui::DragFloat3("Diffuse", glm::value_ptr(m.ambient), 0.1f);
+                ImGui::DragFloat3("Specular", glm::value_ptr(m.ambient), 0.1f);
+                ImGui::DragFloat("Shininess", &m.shininess);
+            }
+
+            if(e.hasComponent<MeshComponent>())
+            {
+                ImGui::Text("Mesh Component:");
+                auto& m = e.getComponent<MeshComponent>();
+                ImGui::Text("Loaded Mesh: %s",
+                    std::filesystem::path(m.model->getDirectory()).filename().string().c_str());
+                if(ImGui::Button("Load Mesh"))
+                {
+                    std::string path = openFileDialog("*.fbx;*.obj;*.gltf");
+                    if(!path.empty())
+                    {
+                        m.model = std::make_shared<Model>(path.c_str());
+                    }
+                }
+            }
+            break;
         }
+
         
+
         ImGui::End();
-        ImGui::render();
+    }
+
+    void drawConsole()
+    {
+        ImGui::Begin("Console");
+        for(const LogEntry& logEntry : Logger::messages)
+        {
+            auto message = logEntry.message.c_str();
+            ImVec4 color;
+            switch(logEntry.type)
+            {
+                case LogType::LOG_INFO:
+                    color = ImVec4(0.0f, 1.0f, 0.0f, 1.0);
+                    break;
+                case LogType::LOG_WARNING:
+                    color = ImVec4(1.0f, 1.0f, 0.0f, 1.0);
+                    break;
+                case LogType::LOG_ERROR:
+                    color = ImVec4(1.0f, 0.0f, 0.0f, 1.0);
+                    break;
+                default:
+                    color = ImVec4(0.0f, 1.0f, 0.0f, 1.0);
+            }
+            ImGui::TextColored(color, message);
+        }
+        ImGui::End();
+    }
+
+    void Update(glm::mat4& view, glm::mat4& projection, std::shared_ptr<Display> display)
+    {
+        display->renderUI();
+        
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::BeginFrame();
+        drawHierarchy();
+        drawInspector(view, projection);
+        drawConsole();
+        ImGui::Render();
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_context);
+        }
+        display->swapBuffers();             
     }
 };
 

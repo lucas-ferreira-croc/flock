@@ -234,8 +234,8 @@ void Display::initializeUI()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	// io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	ImGui::StyleColorsDark();
 
@@ -252,15 +252,37 @@ void Display::initializeUI()
 
 void Display::renderUI()
 {
-    ImGui_ImplOpenGL3_NewFrame();
+  	ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Hierarchy");
-    ImGui::End();
+    // Dockspace raiz (fundamental para layout estilo Unity/Blender)
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking |
+                                   ImGuiWindowFlags_NoTitleBar |
+                                   ImGuiWindowFlags_NoCollapse |
+                                   ImGuiWindowFlags_NoResize |
+                                   ImGuiWindowFlags_NoMove |
+                                   ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                   ImGuiWindowFlags_NoNavFocus |
+								   ImGuiWindowFlags_NoBackground;
 
-    ImGui::render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+    ImGui::Begin("DockspaceRoot", nullptr, windowFlags);
+
+    ImGui::PopStyleVar(2);
+
+    ImGuiID dockspaceID = ImGui::GetID("MainDockspace");
+   	ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+	ImGui::End();
+
 }
 
 void Display::destroyUI()

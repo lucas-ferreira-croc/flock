@@ -54,6 +54,6 @@ void Logger::err(const std::string& message)
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, logEntry.type);
 
-    std::cout <<  logEntry.message;
+    std::cout << logEntry.message;
     messages.push_back(logEntry);
 }

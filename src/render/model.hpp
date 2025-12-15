@@ -27,6 +27,7 @@ public:
     Model(const char* path, bool hasCollision = false)
     {
         loadModel(path);
+        _directory = std::string(path);
         if(hasCollision)
         {
             CollisionVertices collisionVertices;
@@ -38,6 +39,7 @@ public:
     void render(Shader& shader);
     
     std::vector<Mesh>& getMeshes() { return _meshes; };
+    std::string& getDirectory() { return _directory; };
 private:
     std::vector<Mesh> _meshes;
     std::string _directory;

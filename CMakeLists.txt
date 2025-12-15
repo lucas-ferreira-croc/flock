@@ -24,6 +24,11 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT f
 
 add_subdirectory(deps/glfw)
 
+set(INTEGRATION_SOURCE
+    src/integration/SO/file_dialog.cpp
+    src/integration/SO/file_dialog.hpp
+)
+
 set(NODE_GRAPH_SOURCE
 
     src/node_graph/base_node.hpp
@@ -176,6 +181,7 @@ add_executable(flock
     ${ECS_SOURCE}
     ${PHYSICS_SOURCE}
     ${NODE_GRAPH_SOURCE}
+    ${INTEGRATION_SOURCE}
 )
 
 add_custom_command(TARGET flock POST_BUILD

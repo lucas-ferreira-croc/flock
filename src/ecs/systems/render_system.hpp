@@ -287,7 +287,6 @@ void renderPass(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& d
             int i = 0;
             for(auto& fabrik : entity.getComponent<MultiEndedFABRIKComponent>().chains)
             {
-                Logger::err("rendered" + std::to_string(i++) + " times");
                 fabrik.shader->bind();
                 fabrik.shader->setMat4("view", camera->getLookAt());
                 fabrik.shader->setMat4("proj", projection);

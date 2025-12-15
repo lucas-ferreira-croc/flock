@@ -80,16 +80,6 @@ void Game::initialize()
 
     /// Imgui Session
     _display->initializeUI();
-
-    // uiManager = new NodeUIManager();
-    // graph = new NodeGraph();
-    // outputNode = std::make_shared<OutputNode>(1);
-    // nodes_.push_back(outputNode);
-    // graph->addNode(outputNode);
-    // graph->_connections.clear();
-    // uiManager->connections.clear();
-    // graph->computeAll();
-    /// end of Imgui Session
 }
 
 void Game::loadLevel(int level)
@@ -263,19 +253,19 @@ void Game::loadLevel(int level)
     spheresVectors.push_back(spheres1.getComponent<TransformComponent>().position);
     spheresVectors.push_back(spheres2.getComponent<TransformComponent>().position);
     spheresVectors.push_back(spheres3.getComponent<TransformComponent>().position);
+    spheresVectors.push_back(IKtarget.getComponent<TransformComponent>().position);
 
-    // spheres0.addComponent<FABRIKComponent>(spheresVectors, IKtarget.getComponent<TransformComponent>().position);
-    // spheres0.getComponent<FABRIKComponent>().shader->setMat4("view", _camera->getLookAt());
-    // spheres0.getComponent<FABRIKComponent>().shader->setMat4("proj", projection);
     spheres0.addComponent<MultiEndedFABRIKComponent>();
 
 
-    auto a = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres0.getComponent<TransformComponent>().position, spheres1.getComponent<TransformComponent>().position, 5);
-    auto a1 = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres1.getComponent<TransformComponent>().position, spheres2.getComponent<TransformComponent>().position, 5);
-    auto a2 = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres1.getComponent<TransformComponent>().position, spheres3.getComponent<TransformComponent>().position, 5);
+    auto a = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres0.getComponent<TransformComponent>().position, spheres1.getComponent<TransformComponent>().position, 10);
+    auto a1 = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres1.getComponent<TransformComponent>().position, spheres2.getComponent<TransformComponent>().position, 10);
+    auto a2 = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres1.getComponent<TransformComponent>().position, spheres3.getComponent<TransformComponent>().position, 10);
+    auto a3 = spheres0.getComponent<MultiEndedFABRIKComponent>().buildChain(spheres1.getComponent<TransformComponent>().position, IKtarget.getComponent<TransformComponent>().position, 10);
     spheres0.getComponent<MultiEndedFABRIKComponent>().addChain(a, spheres1.getComponent<TransformComponent>().position);
     spheres0.getComponent<MultiEndedFABRIKComponent>().addChain(a1, spheres2.getComponent<TransformComponent>().position);
     spheres0.getComponent<MultiEndedFABRIKComponent>().addChain(a2, spheres3.getComponent<TransformComponent>().position);
+    spheres0.getComponent<MultiEndedFABRIKComponent>().addChain(a3, IKtarget.getComponent<TransformComponent>().position);
     for(auto& chain : spheres0.getComponent<MultiEndedFABRIKComponent>().chains)
     {
         chain.shader->bind();
@@ -378,30 +368,9 @@ void Game::update()
             if(entity.getComponent<IDComponent>()._name == "IKtarget")
                 target = entity.getComponent<TransformComponent>().position;
         }
-        //_registry->getSystem<XPBDSystem>().Update(_deltaTime);
         _registry->getSystem<IKSystem>().Update(target);
-        
-        //std::vector<glm::vec3> joints;
-        // for(auto& entity : _registry->getSystem<GUISystem>().getSystemEntities())
-        // {
-            //     if(entity.getComponent<IDComponent>()._name == "sphere0")
-            //         joints = entity.getComponent<FABRIKComponent>().joints;
-            // }
-            
-            // std::vector<glm::vec3> joints;
-            // for(auto& entity : _registry->getSystem<MultiEndedIKSystem>().getSystemEntities())
-            // {
-            //     auto& chain0 = entity.getComponent<MultiEndedFABRIKComponent>().chains.at(0);
-            //     auto& chain1 = entity.getComponent<MultiEndedFABRIKComponent>().chains.at(1);
-            //     auto& chain2 = entity.getComponent<MultiEndedFABRIKComponent>().chains.at(2);
-                
-            //     joints.push_back(chain0.joints.at(0));
-            //     joints.push_back(chain0.target);
-            //     joints.push_back(chain1.target);
-            //     joints.push_back(chain2.target);
-            // }
 
-            std::vector<glm::vec3> entityPositions(4, glm::vec3(0.0f));
+            std::vector<glm::vec3> entityPositions(5, glm::vec3(0.0f));
             for (auto& e : _registry->getSystem<GUISystem>().getSystemEntities())
             {
                 const auto& id = e.getComponent<IDComponent>()._name;
@@ -409,40 +378,19 @@ void Game::update()
                 else if (id == "sphere1") entityPositions[1] = e.getComponent<TransformComponent>().position;
                 else if (id == "sphere2") entityPositions[2] = e.getComponent<TransformComponent>().position;
                 else if (id == "sphere3") entityPositions[3] = e.getComponent<TransformComponent>().position;
+                else if (id == "IKtarget") entityPositions[4] = e.getComponent<TransformComponent>().position;
             }
             
             _registry->getSystem<MultiEndedIKSystem>().Update(entityPositions);
-
-            // for(auto& entity : _registry->getSystem<GUISystem>().getSystemEntities())
-            // {
-            //     if(entity.getComponent<IDComponent>()._name == "sphere0")
-            //     entity.getComponent<TransformComponent>().position = entityPositions[0];
-                
-            //     if(entity.getComponent<IDComponent>()._name == "sphere1")
-            //     entity.getComponent<TransformComponent>().position = entityPositions[1];
-                
-            //     if(entity.getComponent<IDComponent>()._name == "sphere2")
-            //     entity.getComponent<TransformComponent>().position = entityPositions[2];
-            //     if(entity.getComponent<IDComponent>()._name == "sphere3")
-            //     entity.getComponent<TransformComponent>().position = entityPositions[3];
-            // }
-            
     }
 
     _registry->update();
 }
 void Game::render()
 {
+    _display->clear();
     _registry->getSystem<RenderSystem>().Update(projection, _camera, *_display);
-    _registry->getSystem<GUISystem>().Update(_camera->getLookAt(), projection);
-    //// ImGui
-    //_display->renderUI();
-    ///
-    // for(std::shared_ptr<BaseNode> node : nodes_)
-    // {
-    //     uiManager->renderNode(*node);
-    // }
-    _display->swapBuffers();
+    _registry->getSystem<GUISystem>().Update(_camera->getLookAt(), projection, _display);
 }
 
 void Game::destroy(){

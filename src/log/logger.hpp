@@ -21,7 +21,7 @@ class Logger
 {
 public:
     static std::vector<LogEntry> messages;
-
+    
     static void log(const std::string& message);
     static void warning(const std::string& message);
     static void err(const std::string& message);
