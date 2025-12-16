@@ -29,20 +29,6 @@ set(INTEGRATION_SOURCE
     src/integration/SO/file_dialog.hpp
 )
 
-set(NODE_GRAPH_SOURCE
-
-    src/node_graph/base_node.hpp
-    src/node_graph/connection.hpp
-    src/node_graph/node_factory.hpp
-    src/node_graph/node_graph.hpp
-    src/node_graph/node_graph.cpp
-    src/node_graph/node_type.hpp
-    src/node_graph/node_ui.hpp
-    src/node_graph/node_ui.cpp
-    src/node_graph/output_node.hpp
-    src/node_graph/output_node.cpp
-)
-
 set(MAIN_SOURCE
     src/main.cpp
 )
@@ -164,7 +150,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imgui PREFIX "deps/imgui" FIL
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/imGuizmo PREFIX "deps/imGuizmo" FILES ${IMGUIZMO_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/deps/glad PREFIX "deps/glad" FILES ${GLAD_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/assets PREFIX "assets/shaders" FILES ${SHADERS_SOURCE})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/node_graph PREFIX "src/node_graph" FILES ${NODE_GRAPH_SOURCE})
 
 
 add_executable(flock 
@@ -180,7 +165,6 @@ add_executable(flock
     ${GAME_SOURCE}
     ${ECS_SOURCE}
     ${PHYSICS_SOURCE}
-    ${NODE_GRAPH_SOURCE}
     ${INTEGRATION_SOURCE}
 )
 
