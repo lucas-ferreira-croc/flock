@@ -11,7 +11,7 @@ struct IDComponent
     IDComponent(const std::string name = "", bool isPicked = false)
     {
         this->_name = name;
-        Logger::warning(_name);
+        //Logger::warning(_name);
     }
 
 };
