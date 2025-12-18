@@ -24,6 +24,12 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT f
 
 add_subdirectory(deps/glfw)
 
+set(EVENT_SYSTEM_SOURCE
+    src/events/collision_event.hpp
+    src/events_bus/event_bus.hpp
+    src/events_bus/event.hpp
+)
+
 set(INTEGRATION_SOURCE
     src/integration/SO/file_dialog.cpp
     src/integration/SO/file_dialog.hpp

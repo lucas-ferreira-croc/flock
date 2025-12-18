@@ -11,6 +11,7 @@
 #include "texture/texture.hpp"
 #include "render/shader.hpp"
 #include "render/model.hpp"
+#include "event_bus/event_bus.hpp"
 
 class Game 
 {
@@ -31,6 +32,7 @@ public:
     static void mouse_click_callback(GLFWwindow* window, int button, int action, int mods);
 private:
     std::unique_ptr<Registry> _registry;
+    std::unique_ptr<EventBus> _eventBus;
 
     const int WINDOW_WIDTH = 2048;
     const int WINDOW_HEIGHT = 1536;

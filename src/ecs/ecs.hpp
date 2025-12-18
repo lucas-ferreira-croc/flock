@@ -31,6 +31,15 @@ public:
     };
 };
 
+enum class Tag
+{
+    PLAYER = 0,
+    OBJECT,
+    ENEMY,
+    TERRAIN
+};
+
+
 ///
 class Entity
 {
@@ -39,6 +48,10 @@ public:
     Entity(const Entity& entity) = default;
     int getId() const;
 
+    void tag(Tag tag);
+    bool hsTag(Tag tag) const;
+    void group(Tag group);
+    void belongToGroup(Tag group) const;
 
     template <typename TComponent, typename ...TArgs> void addComponent(TArgs&& ...args);
     template <typename TComponent> void removeComponent();
@@ -246,6 +259,17 @@ public:
     void removeEntityFromSystems(Entity entity);
 
     void update();
+
+    void tagEntity(Entity entity, Tag tag);
+    bool entityHasTag(Entity entity, Tag tag) const;
+    Entity getEntityByTag(Tag tag) const;
+    void removeEntityTag(Entity entity);
+    
+    void groupEntity(Entity entity, Tag group);
+    bool entityBelongsToGroup(Entity entity, Tag group) const;
+    std::vector<Entity> getEntitiesByGroup(Tag tag) const;
+    void removeEntityGroup(Entity entity);
+
 private:
     int _numEntities = 0;
 
@@ -263,6 +287,13 @@ private:
     std::set<Entity> _entitiesToBeKilled;
 
     std::deque<int> freeIds;
+
+    std::unordered_map<Tag, Entity> entityPerTag;
+    std::unordered_map<int, Tag> tagPerEntity;
+
+    std::unordered_map<Tag, std::set<Entity>> entitiesPerGroup;
+    std::unordered_map<int, Tag> groupPerEntity;
+
 };
 
 template<typename TSystem> 

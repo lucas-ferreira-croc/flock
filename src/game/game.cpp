@@ -54,6 +54,7 @@ void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int 
 Game::Game()
 {
     _registry = std::make_unique<Registry>();
+    _eventBus = std::make_unique<EventBus>();
 }
 
 Game::~Game()
@@ -356,6 +357,9 @@ void Game::update()
 
         currentSeconds = glfwGetTime();
     }
+
+    _eventBus->reset();
+
     _camera->update(_deltaTime);
     
     _registry->getSystem<MovementSystem>().Update(_deltaTime);
