@@ -1,0 +1,3 @@
+[submodule "flock_physics"]
+	path = flock_physics
+	url = https://github.com/lucas-ferreira-croc/flock_physics.git
