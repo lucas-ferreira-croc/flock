@@ -66,9 +66,6 @@ struct Material
     vec3 diffuse;
     vec3 specular;
     float shininess;
-    vec3 albedo;
-    float roughness;
-    float metalness;
 };
 
 uniform Material material;
@@ -123,99 +120,43 @@ float shadowCalculations(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
     return shadow /= 9.0;
 }  
 
-float DistributionGGX(vec3 N, vec3 H, float roughness)
-{
-    float a = roughness * roughness;
-    float a2 = a * a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH * NdotH;
-
-    float num = a2;
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = 3.14159 * denom * denom;
-
-    return num / denom;
-}
-
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
-
-    float num = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-
-    return num / denom;
-}
-
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx1 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx2 = GeometrySchlickGGX(NdotL, roughness);
-
-    return ggx1 * ggx2;
-}
-
-vec3 FresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-float ToonRamp(float x)
-{
-    if      (x > 0.75) return 1.0;
-    else if (x > 0.45) return 0.6;
-    else if (x > 0.2)  return 0.3;
-    return 0.05;
-}
-
 void main()
 {
-    vec3 N = normalize(normal);
-    vec3 V = normalize(viewPos - fragPos);
-    vec3 L = normalize(vec3(0,4,1) - fragPos);
-    vec3 H = normalize(V + L);
-
-    float NdotL = max(dot(N, L), 0.0);
-    float ramp = ToonRamp(NdotL);
-
-    // Base reflectance
-    vec3 F0 = mix(vec3(0.04), material.diffuse, 0.51);
-
-    // Cook-Torrance
-    float D = DistributionGGX(N, H, 0.2);
-    float G = GeometrySmith(N, V, L, 0.2);
-    vec3  F = FresnelSchlick(max(dot(H, V), 0.0), F0);
-
-    vec3 numerator = D * G * F;
-    float denom = 4.0 * max(dot(N, V), 0.0) * NdotL + 0.001;
-    vec3 specular = numerator / denom;
-
-    // Energia conservada
-    vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;
-    kD *= 1.0 - 0.51;
-
-    // Toon no difuso
-    vec3 diffuse = kD * material.diffuse * ramp;
-
-    // Specular chapado Gundam
-    float specStep = step(0.85, max(dot(N, H), 0.0));
-    specular *= specStep;
-
-    // Sombra
-    float shadow = shadowCalculations(fragPosLightSpace, L, N);
-
-    // Luz final
+    vec3 norm = normalize(normal);
+    vec3 viewDirection = normalize(viewPos - fragPos);
+   
+    vec3 color = material.diffuse;
     vec3 lightColor = vec3(0.7);
-    vec3 lighting = (diffuse + specular) * lightColor * (1.0 - shadow);
+    vec3 ambient = 0.3 * lightColor;
+    vec3 lightDir = normalize(vec3(0, 4, 1) - fragPos);
 
-    // Ambient estilizado
-    vec3 ambient = 0.4 * material.diffuse;
-    fragColor = vec4(ambient + lighting, 1.0);
+    float diff = max(dot(lightDir, norm), 0.0);
+    if      (diff >= 0.8) { diff = 1.0; }
+    else if (diff >= 0.6) { diff = 0.6; }
+    else if (diff >= 0.3) { diff = 0.3; }
+    else { diff = 0.0; }
 
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(viewPos - fragPos);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    //spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    spec = clamp(dot(normal, halfwayDir), 0.0, 1.0);
+    spec = step(0.98, spec);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    float shadow = shadowCalculations(fragPosLightSpace, lightDir, norm);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+
+    // Converte para [0, 1]
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // Converte para [0, 1]
+    projCoords = projCoords * 0.5 + 0.5;
+
+    //fragColor = vec4(texture(shadowMap, projCoords.xy).rrr, 1.0);
+
+    fragColor = vec4(lighting, 1.0);
 }
 
 

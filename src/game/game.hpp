@@ -62,6 +62,8 @@ private:
     ///
     static double mouse_x, mouse_y;
     static bool mouseClick;
+
+    bool debug = true;
 };
 
 #endif

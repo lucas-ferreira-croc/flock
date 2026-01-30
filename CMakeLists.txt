@@ -140,6 +140,35 @@ set(PHYSICS_SOURCE
     src/physics/world.hpp
 )
 
+set(FLOCK_PHYSICS_SOURCE
+    flock_physics/src/math/vectors.cpp
+    flock_physics/src/math/vectors.hpp
+    flock_physics/src/math/matrices.cpp
+    flock_physics/src/math/matrices.hpp
+    flock_physics/src/math/geometry/2d_geometry.hpp
+    flock_physics/src/math/geometry/2d_geometry.cpp
+    flock_physics/src/math/geometry/3d_geometry.hpp
+    flock_physics/src/math/geometry/3d_geometry.cpp
+    flock_physics/src/structure/quad_tree.hpp
+    flock_physics/src/structure/quad_tree.cpp
+    flock_physics/src/physics/rigidbody.hpp
+    flock_physics/src/physics/rigidbody_volume.hpp
+    flock_physics/src/physics/rigidbody_volume.cpp
+    flock_physics/src/physics/physics_system.hpp
+    flock_physics/src/physics/physics_system.cpp
+    flock_physics/src/physics/particle.cpp
+    flock_physics/src/physics/spring.hpp
+    flock_physics/src/physics/spring.cpp
+    flock_physics/src/physics/cloth.hpp
+    flock_physics/src/physics/cloth.cpp
+    flock_physics/src/physics/distance_joint.hpp
+    flock_physics/src/physics/distance_joint.cpp
+    flock_physics/src/scene.hpp
+    flock_physics/src/scene.cpp
+    flock_physics/src/camera.hpp
+    flock_physics/src/camera.cpp
+)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/render PREFIX "src/render" FILES ${RENDER_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/texture PREFIX "src/texture" FILES ${TEXTURE_SOURCE})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/ui PREFIX "src/ui" FILES ${UI_SOURCE})
@@ -172,6 +201,7 @@ add_executable(flock
     ${ECS_SOURCE}
     ${PHYSICS_SOURCE}
     ${INTEGRATION_SOURCE}
+    ${FLOCK_PHYSICS_SOURCE}
 )
 
 add_custom_command(TARGET flock POST_BUILD
@@ -189,6 +219,7 @@ target_include_directories(flock PRIVATE
 	deps/glad/include
 	deps/glm
     deps/assimp/include
+    flock_physics/src/
 )
 
 target_link_directories(flock PRIVATE

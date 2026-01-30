@@ -37,7 +37,6 @@ public:
     {
         for(auto& entity : getSystemEntities())
         {   
-            Logger::log("updting multi ended ik system");
             auto& multiEndedFabrik =  entity.getComponent<MultiEndedFABRIKComponent>();
             multiEndedFabrik.update(entityPositions);
         }

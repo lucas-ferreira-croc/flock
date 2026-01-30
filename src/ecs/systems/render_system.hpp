@@ -6,7 +6,6 @@
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/mesh_component.hpp"
 #include "ecs/components/shader_component.hpp"
-#include "ecs/components/physics_shape_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
 #include "ecs/components/fabrik_component.hpp"
@@ -270,6 +269,22 @@ void renderPass(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& d
             auto& mesh = entity.getComponent<MeshComponent>();
             mesh.model->render(*shader);
         }
+
+        // if(entity.hasComponent<PhysicsShapeComponent>())
+        // {
+        //     auto& physicsComponent = entity.getComponent<PhysicsShapeComponent>();
+        //     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        //     glm::mat4 modelTransform(1.0f);
+        //     modelTransform = glm::translate(modelTransform, transform.position);
+        //     modelTransform = glm::rotate(modelTransform, glm::radians(physicsComponent.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        //     modelTransform = glm::rotate(modelTransform, glm::radians(physicsComponent.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        //     modelTransform = glm::rotate(modelTransform, glm::radians(physicsComponent.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        //     modelTransform = glm::scale(modelTransform, physicsComponent.scale);
+        //     shader->setMat4("model", modelTransform);
+    
+        //     physicsComponent.model->render(*shader);
+        //     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+        // }
 
         if(entity.hasComponent<FABRIKComponent>())
         {

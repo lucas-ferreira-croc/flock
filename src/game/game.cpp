@@ -18,7 +18,7 @@
 #include "ecs/components/shader_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
-#include "ecs/components/cloth_component.hpp"
+//#include "ecs/components/cloth_component.hpp"
 #include "ecs/components/FABRIK_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
@@ -26,7 +26,6 @@
 #include "ecs/systems/physics_system.hpp"
 #include "ecs/systems/gui_system.hpp"
 #include "ecs/systems/picking_system.hpp"
-#include "ecs/systems/xpbd_system.hpp"
 #include "ecs/systems/ik_system.hpp"
 
 // #include "node_graph/node_graph.hpp"
@@ -87,10 +86,9 @@ void Game::loadLevel(int level)
 {
     _registry->addSystem<MovementSystem>();
     _registry->addSystem<RenderSystem>();
-    _registry->addSystem<PhysicsSystem>(9.8f);
+    _registry->addSystem<PhysicsSystemECS>();
     _registry->addSystem<GUISystem>();
     _registry->addSystem<PickingSystem>();
-    _registry->addSystem<XPBDSystem>();
     _registry->addSystem<IKSystem>();
     _registry->addSystem<MultiEndedIKSystem>();
 
@@ -154,12 +152,10 @@ void Game::loadLevel(int level)
     //backpack.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     backpack.getComponent<ShaderComponent>().setPointLights(pointLights);
     backpack.getComponent<ShaderComponent>().setSpotLights(spotLights);
-    backpack.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
+    glm::vec3 physicsShapeScale = glm::vec3(1.3f, 1.75f, 1.0f);
     backpack.addComponent<IDComponent>("backpack");
-    _registry->getSystem<PhysicsSystem>().AddBody(backpack);
+    //_registry->getSystem<PhysicsSystem>().AddBody(backpack);
     entities.push_back(backpack);
-    
-
     
     Entity teapot = _registry->createEntity();
     teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -4.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -170,9 +166,8 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().setPointLights(pointLights);
     teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
-    teapot.addComponent<PhysicsShapeComponent>(PhysicsShapeType::SPHERE, 0.0f);
     teapot.addComponent<IDComponent>("teapot");
-    _registry->getSystem<PhysicsSystem>().AddBody(teapot);
+    //_registry->getSystem<PhysicsSystem>().AddBody(teapot);
     entities.push_back(teapot);
     
 
@@ -186,12 +181,11 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     plane.getComponent<ShaderComponent>().setPointLights(pointLights);
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
-    plane.addComponent<PhysicsShapeComponent>(PhysicsShapeType::BOX, 0.0f);
-    entities.push_back(plane);
+    physicsShapeScale = glm::vec3(15.0f, 1.0f, 15.0f);
     plane.addComponent<IDComponent>("plane");
-    plane.addComponent<ClothComponent>(plane.getComponent<MeshComponent>().model);
+    entities.push_back(plane);
 
-    _registry->getSystem<PhysicsSystem>().AddBody(plane);
+    //_registry->getSystem<PhysicsSystem>().AddBody(plane);
     
 
 
@@ -315,6 +309,11 @@ void Game::processInput()
         simulating = !simulating;
     }
 
+    if (glfwGetKey(_display->getWindow(), GLFW_KEY_T) == GLFW_PRESS)
+    {
+        debug = !debug;
+    }
+
     if (glfwGetKey(_display->getWindow(), GLFW_KEY_R) == GLFW_PRESS)
     {
         for(auto entity : entities)
@@ -386,6 +385,7 @@ void Game::update()
             }
             
             _registry->getSystem<MultiEndedIKSystem>().Update(entityPositions);
+            _registry->getSystem<PhysicsSystemECS>().Update(_deltaTime);
     }
 
     _registry->update();

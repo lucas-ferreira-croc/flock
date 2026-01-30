@@ -112,7 +112,6 @@ struct FABRIKComponent
 
                 joints[i + 1] = (1.0f - lambda) * joints[i] + lambda * target;
             }
-            Logger::warning("computing ik for out of reach target");
         }
         else
         {
@@ -125,7 +124,6 @@ struct FABRIKComponent
                 dif = glm::length(joints.back() - target);
                 bCount++;
             }
-            Logger::err("computing ik for inbouds target");
         }
         
         glBindBuffer(GL_ARRAY_BUFFER, vbo);

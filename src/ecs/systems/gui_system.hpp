@@ -159,7 +159,6 @@ public:
         {
             auto& id = e.getComponent<IDComponent>();
             if(!id.isPicked) continue;
-
             
             ImGui::Text("Entity: %s", id._name.c_str());
             if(e.hasComponent<TransformComponent>())
@@ -170,29 +169,35 @@ public:
 
             if(e.hasComponent<MaterialComponent>())
             {
-                ImGui::Text("Material Component:");
-                auto& m = e.getComponent<MaterialComponent>();
-                ImGui::DragFloat3("Ambient", glm::value_ptr(m.ambient), 0.1f);
-                ImGui::DragFloat3("Diffuse", glm::value_ptr(m.ambient), 0.1f);
-                ImGui::DragFloat3("Specular", glm::value_ptr(m.ambient), 0.1f);
-                ImGui::DragFloat("Shininess", &m.shininess);
+                
+                if(ImGui::CollapsingHeader("Material Component"))
+                {
+                    auto& m = e.getComponent<MaterialComponent>();
+                    ImGui::DragFloat3("Ambient", glm::value_ptr(m.ambient), 0.1f);
+                    ImGui::DragFloat3("Diffuse", glm::value_ptr(m.ambient), 0.1f);
+                    ImGui::DragFloat3("Specular", glm::value_ptr(m.ambient), 0.1f);
+                    ImGui::DragFloat("Shininess", &m.shininess);
+                }
             }
 
             if(e.hasComponent<MeshComponent>())
             {
-                ImGui::Text("Mesh Component:");
-                auto& m = e.getComponent<MeshComponent>();
-                ImGui::Text("Loaded Mesh: %s",
-                    std::filesystem::path(m.model->getDirectory()).filename().string().c_str());
-                if(ImGui::Button("Load Mesh"))
+                if(ImGui::CollapsingHeader("Mesh Component"))
                 {
-                    std::string path = openFileDialog("*.fbx;*.obj;*.gltf");
-                    if(!path.empty())
+                    auto& m = e.getComponent<MeshComponent>();
+                    ImGui::Text("Loaded Mesh: %s",
+                        std::filesystem::path(m.model->getDirectory()).filename().string().c_str());
+                    if(ImGui::Button("Load Mesh"))
                     {
-                        m.model = std::make_shared<Model>(path.c_str());
+                        std::string path = openFileDialog("*.fbx;*.obj;*.gltf");
+                        if(!path.empty())
+                        {
+                            m.model = std::make_shared<Model>(path.c_str());
+                        }
                     }
                 }
             }
+
             break;
         }
 
