@@ -16,15 +16,15 @@ public:
     
     void Update(double deltaTime)
     {
-        for(auto entity : getSystemEntities())
-        {
-            auto& transform = entity.getComponent<TransformComponent>();
-            auto rigidBody = entity.getComponent<RigidBodyComponent>();
+        // for(auto entity : getSystemEntities())
+        // {
+        //     auto& transform = entity.getComponent<TransformComponent>();
+        //     auto rigidBody = entity.getComponent<RigidBodyComponent>();
 
-            transform.position.x += rigidBody.velocity.x * deltaTime;
-            transform.position.y += rigidBody.velocity.y * deltaTime;
-            transform.position.z += rigidBody.velocity.z * deltaTime;
-        }
+        //     transform.position.x += rigidBody.velocity.x * deltaTime;
+        //     transform.position.y += rigidBody.velocity.y * deltaTime;
+        //     transform.position.z += rigidBody.velocity.z * deltaTime;
+        // }
     }
 };
 

@@ -40,6 +40,12 @@ bool simulating = false;
 //std::shared_ptr<OutputNode> outputNode;
 //std::vector<std::shared_ptr<BaseNode>> nodes_;
 
+void copyPhysicsToGameVec(Physics::vec3& in, glm::vec3& out)
+{
+    out.x = in.x;
+    out.y = in.y;
+    out.z = in.z;
+}
 
 void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -158,7 +164,7 @@ void Game::loadLevel(int level)
     entities.push_back(backpack);
     
     Entity teapot = _registry->createEntity();
-    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -4.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\smooth_teapot.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
@@ -167,6 +173,9 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().setSpotLights(spotLights);
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<IDComponent>("teapot");
+    teapot.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.0f), 5.0f, "teapot");
+
     //_registry->getSystem<PhysicsSystem>().AddBody(teapot);
     entities.push_back(teapot);
     
@@ -183,6 +192,8 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
     physicsShapeScale = glm::vec3(15.0f, 1.0f, 15.0f);
     plane.addComponent<IDComponent>("plane");
+    plane.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
 
     //_registry->getSystem<PhysicsSystem>().AddBody(plane);
@@ -198,10 +209,10 @@ void Game::loadLevel(int level)
     IKtarget.getComponent<ShaderComponent>().setSpotLights(spotLights);
     IKtarget.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     IKtarget.addComponent<IDComponent>("IKtarget");
-    entities.push_back(IKtarget);
+    IKtarget.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(-1.0f, 0.0f, 0.0f), 1.0f, .3f, "IKtarget", 1.0f);
 
-
-   
+    entities.push_back(IKtarget);  
     
     Entity spheres0 = _registry->createEntity();
     spheres0.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
@@ -212,6 +223,8 @@ void Game::loadLevel(int level)
     spheres0.getComponent<ShaderComponent>().setSpotLights(spotLights);
     spheres0.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     spheres0.addComponent<IDComponent>("sphere0");
+    spheres0.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, .3f, "sphere0", 0.7f);
 
     Entity spheres1 = _registry->createEntity();
     spheres1.addComponent<TransformComponent>(glm::vec3(7.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
@@ -222,6 +235,9 @@ void Game::loadLevel(int level)
     spheres1.getComponent<ShaderComponent>().setSpotLights(spotLights);
     spheres1.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     spheres1.addComponent<IDComponent>("sphere1");
+    spheres1.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(7.0f, 0.0f, 0.0f), 1.0f, .3f, "sphere1", 0.1f);
+
 
 
     Entity spheres2 = _registry->createEntity();
@@ -233,6 +249,9 @@ void Game::loadLevel(int level)
     spheres2.getComponent<ShaderComponent>().setSpotLights(spotLights);
     spheres2.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     spheres2.addComponent<IDComponent>("sphere2");
+    spheres2.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(3.0f, 5.0f, 0.0f), 1.0f, .3f, "sphere2", 0.3f);
+
 
     Entity spheres3 = _registry->createEntity();
     spheres3.addComponent<TransformComponent>(glm::vec3(4.0f, 7.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
@@ -243,6 +262,9 @@ void Game::loadLevel(int level)
     spheres3.getComponent<ShaderComponent>().setSpotLights(spotLights);
     spheres3.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     spheres3.addComponent<IDComponent>("sphere3");
+    spheres3.addComponent<RigidBodyComponent>();
+    _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(4.0f, 7.0f, 0.0f), 1.0f, .3f, "sphere3");
+
 
     spheresVectors.push_back(spheres0.getComponent<TransformComponent>().position);
     spheresVectors.push_back(spheres1.getComponent<TransformComponent>().position);
@@ -386,6 +408,15 @@ void Game::update()
             
             _registry->getSystem<MultiEndedIKSystem>().Update(entityPositions);
             _registry->getSystem<PhysicsSystemECS>().Update(_deltaTime);
+
+            for(auto& entity : _registry->getSystem<PhysicsSystemECS>().getSystemEntities())
+            {
+                std::string entityId = entity.getComponent<IDComponent>()._name;
+                Physics::vec3 simPos =_registry->getSystem<PhysicsSystemECS>().bodies.at(entityId).position;
+                glm::vec3 gamePos;
+                copyPhysicsToGameVec(simPos, gamePos);
+                entity.getComponent<TransformComponent>().position = gamePos;
+            }
     }
 
     _registry->update();
