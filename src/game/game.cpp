@@ -25,7 +25,6 @@
 #include "ecs/systems/movement_system.hpp"
 #include "ecs/systems/physics_system.hpp"
 #include "ecs/systems/gui_system.hpp"
-#include "ecs/systems/picking_system.hpp"
 #include "ecs/systems/ik_system.hpp"
 
 // #include "node_graph/node_graph.hpp"
@@ -94,7 +93,6 @@ void Game::loadLevel(int level)
     _registry->addSystem<RenderSystem>();
     _registry->addSystem<PhysicsSystemECS>();
     _registry->addSystem<GUISystem>();
-    _registry->addSystem<PickingSystem>();
     _registry->addSystem<IKSystem>();
     _registry->addSystem<MultiEndedIKSystem>();
 
@@ -344,25 +342,6 @@ void Game::processInput()
             shaderComponent.reset();
         }
     }
-
-    if(mouseClick)
-    {
-        float x = (2.0f * mouse_x) / WINDOW_WIDTH - 1.0f;
-        float y = 1.0f - (2.0f * mouse_y) / WINDOW_HEIGHT;
-        glm::vec4 ndc4d = glm::vec4(x, y, -1.0f, 1.0f);
-
-
-        glm::vec4 rayView4d = glm::inverse(projection) * ndc4d;
-        rayView4d.z = -1.0f; // direção para frente no space view
-        rayView4d.w = 0.0f;
-
-        glm::mat4 invView = glm::inverse(_camera->getLookAt()); // assumindo getLookAt() retorna view matrix
-        glm::vec3 rayDirectionWorld = glm::normalize(glm::vec3(invView * rayView4d));
-        glm::vec3 rayOrigin = _camera->getPosition();
-
-        _registry->getSystem<PickingSystem>().Update(rayOrigin, rayDirectionWorld);
-        mouseClick = false;
-    }
 }
 void Game::update()
 {
@@ -407,7 +386,31 @@ void Game::update()
             }
             
             _registry->getSystem<MultiEndedIKSystem>().Update(entityPositions);
-            _registry->getSystem<PhysicsSystemECS>().Update(_deltaTime);
+            
+            std::shared_ptr<PickingInfo> pickingInfo = std::make_shared<PickingInfo>();
+            if(mouseClick)
+            {
+                pickingInfo->viewportPoint = Physics::vec2(mouse_x, mouse_y); 
+                pickingInfo->viewportSize = Physics::vec2(_display->getBufferWidth(), _display->getBufferHeight());
+                pickingInfo->viewportOrigin = Physics::vec2();
+
+
+                auto toMat4 = [&](const glm::mat4& g)
+                {
+                    Physics::mat4 m;
+
+                    m._11 = g[0][0]; m._12 = g[0][1]; m._13 = g[0][2]; m._14 = g[0][3];
+                    m._21 = g[1][0]; m._22 = g[1][1]; m._23 = g[1][2]; m._24 = g[1][3];
+                    m._31 = g[2][0]; m._32 = g[2][1]; m._33 = g[2][2]; m._34 = g[2][3];
+                    m._41 = g[3][0]; m._42 = g[3][1]; m._43 = g[3][2]; m._44 = g[3][3];
+                    return m;
+                };
+
+                pickingInfo->view = toMat4(_camera->getLookAt());
+                pickingInfo->projection = toMat4(projection);
+            }
+
+            _registry->getSystem<PhysicsSystemECS>().Update(_deltaTime, mouseClick, pickingInfo);
 
             for(auto& entity : _registry->getSystem<PhysicsSystemECS>().getSystemEntities())
             {

@@ -188,6 +188,8 @@ void Display::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 
 	display->_windowWidth = width;
 	display->_windowHeight = height;
+	display->_bufferWidth = width;
+	display->_bufferHeight = height;
 }
 
 

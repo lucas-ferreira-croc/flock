@@ -63,7 +63,6 @@ set(SYSTEMS_SOURCE
     src/ecs/systems/render_system.hpp
     src/ecs/systems/physics_system.hpp
     src/ecs/systems/gui_system.hpp
-    src/ecs/systems/picking_system.hpp
     src/ecs/systems/xpbd_system.hpp
     src/ecs/systems/ik_system.hpp
 )
