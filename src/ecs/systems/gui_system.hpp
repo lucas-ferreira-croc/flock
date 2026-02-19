@@ -5,6 +5,8 @@
 
 #include "ecs/components/id_component.hpp"
 #include "ecs/components/transform_component.hpp"
+#include "ecs/components/edit_component.hpp"
+#include "ecs/components/edit_stub_component.hpp"
 #include "ecs/ecs.hpp"
 #include "ui/imgui_config.hpp"
 #include "ImGuizmo/ImGuizmo.h"
@@ -106,6 +108,12 @@ public:
         for (auto& e : getSystemEntities())
         {
             auto& id = e.getComponent<IDComponent>();
+
+            if(e.hasComponent<TagComponent>() && e.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
+            {
+                continue;;
+            }
+
             if(ImGui::Selectable(id._name.c_str(), id.isPicked))
             {
                 for (auto& o : getSystemEntities())
@@ -196,6 +204,62 @@ public:
                         }
                     }
                 }
+
+                if(e.hasComponent<EditComponent>())
+                {
+                    if(ImGui::CollapsingHeader("Edit Mode"))
+                    {
+                        if (ImGui::RadioButton("Face", faceEdit))
+                        {
+                            faceEdit = true;
+                            edgeEdit = false;
+                            vertexEdit = false;
+                            Logger::warning("face");
+                        }
+                        if (ImGui::RadioButton("Edge", edgeEdit))
+                        {
+                            faceEdit = false;
+                            edgeEdit = true;
+                            vertexEdit = false;
+                            Logger::warning("edge");
+                        }
+                        if (ImGui::RadioButton("Vertex", vertexEdit))
+                        {
+                            faceEdit = false;
+                            edgeEdit = false;
+                            vertexEdit = true;    
+                            Logger::warning("vertex");
+                        }
+
+                        if (vertexEdit)
+                        {
+                            for (auto& entity : getSystemEntities())
+                            {
+                                entity.getComponent<TagComponent>().show = true;
+                                if (entity.hasComponent<TagComponent>() &&
+                                    entity.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
+                                {
+                                    auto& id = entity.getComponent<IDComponent>();
+
+                                    if (ImGui::Selectable(id._name.c_str(), id.isPicked))
+                                    {
+                                        for (auto& e : getSystemEntities())
+                                        {
+                                            if (e.hasComponent<IDComponent>())
+                                            {
+                                                e.getComponent<IDComponent>().isPicked = false;
+                                                e.getComponent<VertexEditStubComponent>().mEdit = false;
+                                            }
+                                            
+                                        }
+                                        entity.getComponent<VertexEditStubComponent>().mEdit = true;
+                                        id.isPicked = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             break;
@@ -254,6 +318,10 @@ public:
         }
         display->swapBuffers();             
     }
+
+    bool faceEdit = false;
+    bool edgeEdit = false;
+    bool vertexEdit = false;
 };
 
 #endif

@@ -172,7 +172,12 @@ void renderPass(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& d
                 RenderPass pass, glm::mat4 lightSpaceMatrix)
 {
     for(auto& entity : getSystemEntities())
-    {            
+    {   
+        if(entity.hasComponent<TagComponent>() && !entity.getComponent<TagComponent>().show)
+        {
+            continue;
+        }
+        
         auto& transform = entity.getComponent<TransformComponent>();
         auto& shaderComponent = entity.getComponent<ShaderComponent>();
 

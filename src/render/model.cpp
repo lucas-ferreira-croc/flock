@@ -40,7 +40,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-      std::vector<Vertex> vertices;
+        std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<MeshTexture> textures;
 
@@ -53,6 +53,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vector.y = mesh->mVertices[i].y;
             vector.z = mesh->mVertices[i].z;
             vertex.position = vector;
+            vertex.id = i;
             // normals
             if (mesh->HasNormals())
             {

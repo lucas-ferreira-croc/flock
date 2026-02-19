@@ -16,10 +16,10 @@ void Mesh::setupMesh()
 
     glBindVertexArray(_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW); 
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW); 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_DYNAMIC_DRAW);
 
     // vertex positions
     glEnableVertexAttribArray(0);
@@ -67,6 +67,17 @@ void Mesh::render(Shader& shader)
     glBindVertexArray(0);
 }
 
+void Mesh::updateVertexPosition(int vertexId)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+    
+    glBufferSubData(GL_ARRAY_BUFFER, 
+    vertexId * sizeof(Vertex),
+    sizeof(glm::vec3),
+    &vertices[vertexId].position
+    );
+}
+
 DebugMesh::DebugMesh(float* vertices, int verticesSize, unsigned int* indices, int indicesSize)
 {
     m_indicesSize = indicesSize;
@@ -94,3 +105,4 @@ void DebugMesh::render(Shader& shader)
     glDrawElements(GL_LINES, m_indicesSize, GL_UNSIGNED_INT, 0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
+

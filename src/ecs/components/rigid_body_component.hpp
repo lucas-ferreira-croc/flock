@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-struct  RigidBodyComponent
+struct RigidBodyComponent
 {
     glm::vec3 velocity;
 

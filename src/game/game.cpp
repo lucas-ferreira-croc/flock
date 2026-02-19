@@ -14,7 +14,7 @@
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/rigid_body_component.hpp"
 #include "ecs/components/mesh_component.hpp"
-#include "ecs/components/debug_mesh_component.hpp"
+#include "ecs/components/edit_component.hpp"
 #include "ecs/components/shader_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
@@ -26,6 +26,7 @@
 #include "ecs/systems/physics_system.hpp"
 #include "ecs/systems/gui_system.hpp"
 #include "ecs/systems/ik_system.hpp"
+#include "ecs/systems/editmode_system.hpp"
 
 // #include "node_graph/node_graph.hpp"
 // #include "node_graph/output_node.hpp"
@@ -46,6 +47,14 @@ void copyPhysicsToGameVec(Physics::vec3& in, glm::vec3& out)
     out.z = in.z;
 }
 
+void Game::writeFrameTime(float _deltaTime)
+{
+    char tmp[128];
+	sprintf(tmp, "flock @ frametime: %.6f", _deltaTime);
+
+	glfwSetWindowTitle(_display->getWindow(), tmp);
+}
+
 void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if(!(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS))
@@ -57,7 +66,7 @@ void Game::mouse_click_callback(GLFWwindow* window, int button, int action, int 
 
 Game::Game()
 {
-    _registry = std::make_unique<Registry>();
+    _registry = std::make_shared<Registry>();
     _eventBus = std::make_unique<EventBus>();
 }
 
@@ -95,6 +104,7 @@ void Game::loadLevel(int level)
     _registry->addSystem<GUISystem>();
     _registry->addSystem<IKSystem>();
     _registry->addSystem<MultiEndedIKSystem>();
+    _registry->addSystem<EditModeSystem>();
 
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
@@ -147,20 +157,20 @@ void Game::loadLevel(int level)
     cubemap.getComponent<ShaderComponent>().addUniformInt("skybox", 0);
     entities.push_back(cubemap);
 
-    Entity backpack = _registry->createEntity();
-    backpack.addComponent<TransformComponent>(glm::vec3(3.0f, -3.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    backpack.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
-    backpack.addComponent<MaterialComponent>(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f);
-    backpack.addComponent<ShaderComponent>(vsFilename, fsFilename);
-    backpack.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
-    //backpack.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
-    backpack.getComponent<ShaderComponent>().setPointLights(pointLights);
-    backpack.getComponent<ShaderComponent>().setSpotLights(spotLights);
-    glm::vec3 physicsShapeScale = glm::vec3(1.3f, 1.75f, 1.0f);
-    backpack.addComponent<IDComponent>("backpack");
-    //_registry->getSystem<PhysicsSystem>().AddBody(backpack);
-    entities.push_back(backpack);
-    
+    Entity cube = _registry->createEntity();
+    cube.addComponent<TransformComponent>(glm::vec3(3.0f, -3.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    cube.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.ply");
+    cube.addComponent<MaterialComponent>(glm::vec3(0.7f), glm::vec3(0.7f), glm::vec3(0.7f), 8.0f);
+    cube.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    cube.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
+    cube.getComponent<ShaderComponent>().setPointLights(pointLights);
+    cube.getComponent<ShaderComponent>().setSpotLights(spotLights);
+    cube.addComponent<IDComponent>("cube");
+    cube.addComponent<RigidBodyComponent>();
+    cube.addComponent<EditComponent>(_registry, entities, cube.getComponent<MeshComponent>(), cube.getComponent<TransformComponent>(), cube.getComponent<IDComponent>()._name, _camera->getPosition());
+   _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(3.0f, -3.0f, -2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0), 5.0f, "cube");
+    entities.push_back(cube);
+
     Entity teapot = _registry->createEntity();
     teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\smooth_teapot.dae");
@@ -188,15 +198,10 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     plane.getComponent<ShaderComponent>().setPointLights(pointLights);
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
-    physicsShapeScale = glm::vec3(15.0f, 1.0f, 15.0f);
     plane.addComponent<IDComponent>("plane");
     plane.addComponent<RigidBodyComponent>();
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
-
-    //_registry->getSystem<PhysicsSystem>().AddBody(plane);
-    
-
 
     Entity IKtarget = _registry->createEntity();
     IKtarget.addComponent<TransformComponent>(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(.3f), glm::vec3(0.0f));
@@ -298,7 +303,7 @@ void Game::loadLevel(int level)
 void Game::setup()
 {
     loadLevel(1);
-    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\backpack\\backpack.obj");
+    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\cube\\cube.obj");
     previousSeconds = glfwGetTime();
 }
 
@@ -348,6 +353,7 @@ void Game::update()
 
     double currentSeconds = glfwGetTime();
     _deltaTime = currentSeconds - previousSeconds;
+    writeFrameTime(_deltaTime);
     previousSeconds = currentSeconds;
 
     if (_deltaTime < FIXED_TIMESTEP) {
@@ -363,6 +369,7 @@ void Game::update()
     _camera->update(_deltaTime);
     
     _registry->getSystem<MovementSystem>().Update(_deltaTime);
+    _registry->getSystem<EditModeSystem>().Update(entities);
 
     if(simulating)
     {

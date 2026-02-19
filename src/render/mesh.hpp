@@ -15,6 +15,7 @@ struct Vertex
     glm::vec2 texCoords;
     glm::vec3 Tangent;
     glm::vec3 Bitangent;
+    int id;
 };
 
 struct MeshTexture
@@ -36,6 +37,7 @@ public:
     std::vector<unsigned int> indices;
     std::vector<MeshTexture> textures;
 
+    void updateVertexPosition(int vertexId);
     unsigned int& getVBO() { return _VBO; };
 protected:
     unsigned int _VAO, _VBO, _EBO;

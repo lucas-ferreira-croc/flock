@@ -56,6 +56,9 @@ set(COMPONENTS_SOURCE
     src/ecs/components/id_component.hpp
     src/ecs/components/cloth_component.hpp
     src/ecs/components/fabrik_component.hpp
+    src/ecs/components/edit_component.hpp
+    src/ecs/components/edit_stub_component.hpp
+    src/ecs/components/tag_component.hpp
 )
 
 set(SYSTEMS_SOURCE
@@ -65,6 +68,7 @@ set(SYSTEMS_SOURCE
     src/ecs/systems/gui_system.hpp
     src/ecs/systems/xpbd_system.hpp
     src/ecs/systems/ik_system.hpp
+    src/ecs/systems/editmode_system.hpp
 )
 
 set(RENDER_SOURCE

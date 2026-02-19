@@ -31,7 +31,8 @@ public:
 
     static void mouse_click_callback(GLFWwindow* window, int button, int action, int mods);
 private:
-    std::unique_ptr<Registry> _registry;
+    void writeFrameTime(float _deltaTime);
+    std::shared_ptr<Registry> _registry;
     std::unique_ptr<EventBus> _eventBus;
 
     const int WINDOW_WIDTH = 2048;
@@ -64,6 +65,7 @@ private:
     static bool mouseClick;
 
     bool debug = true;
+    int frameCount;
 };
 
 #endif
