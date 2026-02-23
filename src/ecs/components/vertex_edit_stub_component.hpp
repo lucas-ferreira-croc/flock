@@ -1,5 +1,5 @@
-#ifndef EDIT_STUB_COMPONENT_HPP
-#define EDIT_STUB_COMPONENT_HPP
+#ifndef VERTEX_EDIT_STUB_COMPONENT_HPP
+#define VERTEX_EDIT_STUB_COMPONENT_HPP
 
 #include "glm/glm.hpp"
 
@@ -14,13 +14,14 @@ struct VertexEditStubComponent
 
     void setAssociatedVertices(std::vector<int> vertices)
     {
-        associatedVertices = vertices;
+        mAssociatedVertices = vertices;
     }
 
     glm::vec3 mLastPosition;
     int mVertexID;
-    std::vector<int> associatedVertices;
+    std::vector<int> mAssociatedVertices;
     bool mEdit;
+    std::string mParent;
 };
 
 #endif

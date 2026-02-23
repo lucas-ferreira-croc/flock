@@ -7,17 +7,18 @@
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/id_component.hpp"
 #include "ecs/components/tag_component.hpp"
-#include "ecs/components/edit_stub_component.hpp"
+#include "ecs/components/vertex_edit_stub_component.hpp"
 #include "ecs/ecs.hpp"
 
 // #include "log/logger.hpp"
 
-// enum class EditType
-// {   
-//     VERTEX = 0,
-//     EDGE,
-//     FACE
-// };
+enum class EditType
+{   
+    NONE = 0,
+    VERTEX,
+    EDGE,
+    FACE
+};
 
 struct EditComponent
 {
@@ -35,7 +36,7 @@ struct EditComponent
         std::vector<Vertex> uniqueVertices;
         std::vector<int> ids;
         std::map<int, std::vector<int>> associatedVertices;
-        for(auto mesh : meshComponent.model->getMeshes()) 
+        for(auto& mesh : meshComponent.model->getMeshes()) 
         {
             for (auto& v : mesh.vertices)
             {
@@ -71,9 +72,11 @@ struct EditComponent
             vertice.getComponent<ShaderComponent>().addUniformVec3("cameraPos", cameraPosition);
             vertice.addComponent<TagComponent>(TagType::EditModeEntity);
             std::string id = "v" + std::to_string(i++);
-            vertice.addComponent<VertexEditStubComponent>(p.position + transformComponent.position, ids.at(vertexId));
+            vertice.addComponent<VertexEditStubComponent>(p.position, ids.at(vertexId));
+            vertice.getComponent<VertexEditStubComponent>().mParent = idComponent._name;
             vertice.getComponent<VertexEditStubComponent>().setAssociatedVertices(associatedVertices.at(ids.at(vertexId)));
             vertice.addComponent<IDComponent>(id);
+            mVertexStubs.push_back(vertice);
             entities.push_back(vertice);
             vertexId++;
         }
@@ -81,6 +84,8 @@ struct EditComponent
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsColorfilename =  "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
     std::string parent;
+    std::vector<Entity> mVertexStubs;
+    EditType mCurrentEditType;
 };
 
 

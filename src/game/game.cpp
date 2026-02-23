@@ -200,6 +200,7 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
     plane.addComponent<IDComponent>("plane");
     plane.addComponent<RigidBodyComponent>();
+    //plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
 

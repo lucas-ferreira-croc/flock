@@ -6,7 +6,7 @@
 #include "ecs/components/id_component.hpp"
 #include "ecs/components/transform_component.hpp"
 #include "ecs/components/edit_component.hpp"
-#include "ecs/components/edit_stub_component.hpp"
+#include "ecs/components/vertex_edit_stub_component.hpp"
 #include "ecs/ecs.hpp"
 #include "ui/imgui_config.hpp"
 #include "ImGuizmo/ImGuizmo.h"
@@ -211,6 +211,7 @@ public:
                     {
                         if (ImGui::RadioButton("Face", faceEdit))
                         {
+                            e.getComponent<EditComponent>().mCurrentEditType = EditType::FACE;
                             faceEdit = true;
                             edgeEdit = false;
                             vertexEdit = false;
@@ -218,6 +219,7 @@ public:
                         }
                         if (ImGui::RadioButton("Edge", edgeEdit))
                         {
+                            e.getComponent<EditComponent>().mCurrentEditType = EditType::EDGE;
                             faceEdit = false;
                             edgeEdit = true;
                             vertexEdit = false;
@@ -225,6 +227,7 @@ public:
                         }
                         if (ImGui::RadioButton("Vertex", vertexEdit))
                         {
+                            e.getComponent<EditComponent>().mCurrentEditType = EditType::VERTEX;
                             faceEdit = false;
                             edgeEdit = false;
                             vertexEdit = true;    
@@ -233,27 +236,30 @@ public:
 
                         if (vertexEdit)
                         {
-                            for (auto& entity : getSystemEntities())
+                            for (auto& entity : e.getComponent<EditComponent>().mVertexStubs)
                             {
-                                entity.getComponent<TagComponent>().show = true;
-                                if (entity.hasComponent<TagComponent>() &&
-                                    entity.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
+                                if(entity.hasComponent<VertexEditStubComponent>())
                                 {
-                                    auto& id = entity.getComponent<IDComponent>();
-
-                                    if (ImGui::Selectable(id._name.c_str(), id.isPicked))
+                                    if(entity.getComponent<VertexEditStubComponent>().mParent == e.getComponent<IDComponent>()._name)
                                     {
-                                        for (auto& e : getSystemEntities())
+                                        entity.getComponent<TagComponent>().show = true;
+                                        if (entity.hasComponent<TagComponent>() &&
+                                            entity.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
                                         {
-                                            if (e.hasComponent<IDComponent>())
+                                            auto& id = entity.getComponent<IDComponent>();
+                                            if (ImGui::Selectable(id._name.c_str(), id.isPicked))
                                             {
-                                                e.getComponent<IDComponent>().isPicked = false;
-                                                e.getComponent<VertexEditStubComponent>().mEdit = false;
+                    
+                                                if (e.hasComponent<IDComponent>())
+                                                {
+                                                    e.getComponent<IDComponent>().isPicked = false;
+                                                    e.getComponent<VertexEditStubComponent>().mEdit = false;
+                                                }
+                           
+                                                entity.getComponent<VertexEditStubComponent>().mEdit = true;
+                                                id.isPicked = true;
                                             }
-                                            
                                         }
-                                        entity.getComponent<VertexEditStubComponent>().mEdit = true;
-                                        id.isPicked = true;
                                     }
                                 }
                             }
