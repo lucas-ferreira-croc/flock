@@ -66,7 +66,6 @@ public:
 
                 glm::vec3 worldPos = stubTransform.position;
                 glm::vec3 localPos = worldPos - parentTransform.position;
-
                 parentVertices[vertexId].position = localPos;
                 mesh.updateVertexPosition(vertexId);
 
@@ -77,6 +76,78 @@ public:
                 }
 
                 stub.mLastPosition = localPos;
+            }
+            else if(parent.getComponent<EditComponent>().mCurrentEditType == EditType::EDGE)
+            {
+                std::vector<Entity*> editingStub;
+                for (auto& stubEntity : stubEntities)
+                {
+                    auto& stub = stubEntity.getComponent<VertexEditStubComponent>();
+                    if (stub.mEdit)
+                    {
+                        editingStub.push_back(&stubEntity);
+                    }
+                }
+                
+                if (editingStub.size() != 2)
+                {
+                    continue;
+                }
+                for(int i = 0; i < editingStub.size(); i++)
+                {
+
+                    auto& stubTransform = editingStub[i]->getComponent<TransformComponent>();
+                    auto& stub = editingStub[i]->getComponent<VertexEditStubComponent>();
+                    int vertexId = stub.mVertexID;
+    
+                    glm::vec3 worldPos = stubTransform.position;
+                    glm::vec3 localPos = worldPos - parentTransform.position;
+                    parentVertices[vertexId].position = localPos;
+                    mesh.updateVertexPosition(vertexId);
+    
+                    for (auto& vId : stub.mAssociatedVertices)
+                    {
+                        parentVertices[vId].position = localPos;
+                        mesh.updateVertexPosition(vId);
+                    }
+                    stub.mLastPosition = localPos;
+                }
+            }
+            else if(parent.getComponent<EditComponent>().mCurrentEditType == EditType::FACE)
+            {
+                 std::vector<Entity*> editingStub;
+                for (auto& stubEntity : stubEntities)
+                {
+                    auto& stub = stubEntity.getComponent<VertexEditStubComponent>();
+                    if (stub.mEdit)
+                    {
+                        editingStub.push_back(&stubEntity);
+                    }
+                }
+                
+                if (editingStub.size() != 3)
+                {
+                    continue;
+                }
+                for(int i = 0; i < editingStub.size(); i++)
+                {
+
+                    auto& stubTransform = editingStub[i]->getComponent<TransformComponent>();
+                    auto& stub = editingStub[i]->getComponent<VertexEditStubComponent>();
+                    int vertexId = stub.mVertexID;
+    
+                    glm::vec3 worldPos = stubTransform.position;
+                    glm::vec3 localPos = worldPos - parentTransform.position;
+                    parentVertices[vertexId].position = localPos;
+                    mesh.updateVertexPosition(vertexId);
+    
+                    for (auto& vId : stub.mAssociatedVertices)
+                    {
+                        parentVertices[vId].position = localPos;
+                        mesh.updateVertexPosition(vId);
+                    }
+                    stub.mLastPosition = localPos;
+                }
             }
         }   
     }

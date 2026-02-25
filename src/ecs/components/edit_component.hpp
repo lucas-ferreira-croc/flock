@@ -65,7 +65,7 @@ struct EditComponent
         for(auto p : verticesPositions)
         {
             Entity vertice = registry->createEntity();
-            vertice.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.obj");
+            //vertice.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.obj");
             vertice.addComponent<TransformComponent>(p.position + transformComponent.position, glm::vec3(.05f, .05f, .05f) , glm::vec3(0.0f, 0.0f, 0.0f));
             vertice.addComponent<MaterialComponent>(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 8.0f);
             vertice.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
@@ -74,17 +74,34 @@ struct EditComponent
             std::string id = "v" + std::to_string(i++);
             vertice.addComponent<VertexEditStubComponent>(p.position, ids.at(vertexId));
             vertice.getComponent<VertexEditStubComponent>().mParent = idComponent._name;
-            vertice.getComponent<VertexEditStubComponent>().setAssociatedVertices(associatedVertices.at(ids.at(vertexId)));
+
+            auto key = ids.at(vertexId);
+            std::vector<int> associated;
+            auto it = associatedVertices.find(key);
+            if(it != associatedVertices.end())
+            {
+                associated = it->second;
+            }
+            vertice.getComponent<VertexEditStubComponent>().setAssociatedVertices(associated);
+            vertice.getComponent<VertexEditStubComponent>().mParent = idComponent._name;
             vertice.addComponent<IDComponent>(id);
             mVertexStubs.push_back(vertice);
             entities.push_back(vertice);
             vertexId++;
         }
+
+        auto& edges = meshComponent.model->getMeshes()[0].edges;
+        mEdgeStubs = edges;
+
+        auto& faces = meshComponent.model->getMeshes()[0].faces;
+        mFaceStubs = faces;
     }
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsColorfilename =  "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
     std::string parent;
     std::vector<Entity> mVertexStubs;
+    std::vector<Edge> mEdgeStubs;
+    std::vector<Face> mFaceStubs;
     EditType mCurrentEditType;
 };
 

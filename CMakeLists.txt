@@ -58,6 +58,7 @@ set(COMPONENTS_SOURCE
     src/ecs/components/fabrik_component.hpp
     src/ecs/components/edit_component.hpp
     src/ecs/components/vertex_edit_stub_component.hpp
+    src/ecs/components/edge_edit_stub_component.hpp
     src/ecs/components/tag_component.hpp
 )
 

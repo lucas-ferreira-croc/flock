@@ -159,7 +159,7 @@ void Game::loadLevel(int level)
 
     Entity cube = _registry->createEntity();
     cube.addComponent<TransformComponent>(glm::vec3(3.0f, -3.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    cube.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.ply");
+    cube.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.obj");
     cube.addComponent<MaterialComponent>(glm::vec3(0.7f), glm::vec3(0.7f), glm::vec3(0.7f), 8.0f);
     cube.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     cube.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
@@ -182,6 +182,8 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<IDComponent>("teapot");
     teapot.addComponent<RigidBodyComponent>();
+    //teapot.addComponent<EditComponent>(_registry, entities, teapot.getComponent<MeshComponent>(), teapot.getComponent<TransformComponent>(), teapot.getComponent<IDComponent>()._name, _camera->getPosition());
+
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.0f), 5.0f, "teapot");
 
     //_registry->getSystem<PhysicsSystem>().AddBody(teapot);
@@ -194,13 +196,13 @@ void Game::loadLevel(int level)
     plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\plane.obj");
     plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
-    //plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
+    plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     plane.getComponent<ShaderComponent>().setPointLights(pointLights);
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
     plane.addComponent<IDComponent>("plane");
     plane.addComponent<RigidBodyComponent>();
-    //plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
+    plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
 

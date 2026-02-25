@@ -18,6 +18,30 @@ struct Vertex
     int id;
 };
 
+struct Edge
+{
+    Edge(int vId1, int vId2, int id)
+        : vId1(vId1), vId2(vId2), id(id)
+    {
+
+    }
+    int vId1;
+    int vId2;
+    int id;
+};
+
+struct Face
+{
+    Face(int vId1, int vId2, int vId3, int id)
+        : vId1(vId1), vId2(vId2), vId3(vId3), id(id)
+    {
+    }
+    int vId1;
+    int vId2;
+    int vId3;
+    int id;
+};
+
 struct MeshTexture
 {
     unsigned int id;
@@ -34,6 +58,8 @@ public:
     virtual void render(Shader& shader);
     
     std::vector<Vertex> vertices;
+    std::vector<Face> faces;
+    std::vector<Edge> edges;
     std::vector<unsigned int> indices;
     std::vector<MeshTexture> textures;
 
@@ -43,19 +69,10 @@ protected:
     unsigned int _VAO, _VBO, _EBO;
     
     void setupMesh();
-};
+    void constructFaces();
+    void constructEdges();
 
-class DebugMesh
-{
-public:
-    DebugMesh(float* vertices, int verticesSize, unsigned int* indices, int indicesSize);
-    void render(Shader& shader);
-
-private:
-	unsigned int m_VAO;
-	unsigned int m_VBO;
-	unsigned int m_IBO;
-    int m_indicesSize;
+    void weldVertices(float epsilon = 1e-6f);
 };
 
 #endif

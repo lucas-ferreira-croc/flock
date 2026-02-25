@@ -234,31 +234,86 @@ public:
                             Logger::warning("vertex");
                         }
 
+                        if(faceEdit)
+                        {
+                            auto& vertexStubs = e.getComponent<EditComponent>().mVertexStubs;
+                            for(auto& face : e.getComponent<EditComponent>().mFaceStubs)
+                            {
+                                auto& v1Stub = vertexStubs.at(face.vId1);
+                                auto& v2Stub = vertexStubs.at(face.vId2);
+                                auto& v3Stub = vertexStubs.at(face.vId3);
+                                if (ImGui::Selectable(std::to_string(face.id).c_str()))
+                                {
+                                    for (auto& e : getSystemEntities())
+                                    {
+                                        if (e.hasComponent<IDComponent>())
+                                        {
+                                            e.getComponent<IDComponent>().isPicked = false;
+                                            e.getComponent<VertexEditStubComponent>().mEdit = false;
+                                        }
+
+                                    }
+                                    v1Stub.getComponent<IDComponent>().isPicked = true;
+                                    v2Stub.getComponent<IDComponent>().isPicked = true;
+                                    v3Stub.getComponent<IDComponent>().isPicked = true;
+                                    v1Stub.getComponent<VertexEditStubComponent>().mEdit = true;
+                                    v2Stub.getComponent<VertexEditStubComponent>().mEdit = true;
+                                    v3Stub.getComponent<VertexEditStubComponent>().mEdit = true;
+                                }
+                            }
+                        }
+
+                        if(edgeEdit)
+                        {
+                            auto& vertexStubs = e.getComponent<EditComponent>().mVertexStubs;
+                            for(auto& edge : e.getComponent<EditComponent>().mEdgeStubs)
+                            {
+                                auto& v1Stub = vertexStubs.at(edge.vId1);
+                                auto& v2Stub = vertexStubs.at(edge.vId2);
+                                if (ImGui::Selectable(std::to_string(edge.id).c_str()))
+                                {
+                                    for (auto& e : getSystemEntities())
+                                    {
+                                        if (e.hasComponent<IDComponent>())
+                                        {
+                                            e.getComponent<IDComponent>().isPicked = false;
+                                            e.getComponent<VertexEditStubComponent>().mEdit = false;
+                                        }
+
+                                    }
+                                    v1Stub.getComponent<IDComponent>().isPicked = true;
+                                    v2Stub.getComponent<IDComponent>().isPicked = true;
+                                    v1Stub.getComponent<VertexEditStubComponent>().mEdit = true;
+                                    v2Stub.getComponent<VertexEditStubComponent>().mEdit = true;
+                                }
+                            }
+                        }
+
                         if (vertexEdit)
                         {
-                            for (auto& entity : e.getComponent<EditComponent>().mVertexStubs)
+                            for (auto & entity : e.getComponent<EditComponent>().mVertexStubs)
                             {
-                                if(entity.hasComponent<VertexEditStubComponent>())
+                                if (entity.getComponent<VertexEditStubComponent>().mParent == e.getComponent<IDComponent>()._name)
                                 {
-                                    if(entity.getComponent<VertexEditStubComponent>().mParent == e.getComponent<IDComponent>()._name)
+                                    entity.getComponent<TagComponent>().show = true;
+                                    if (entity.hasComponent<TagComponent>() &&
+                                        entity.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
                                     {
-                                        entity.getComponent<TagComponent>().show = true;
-                                        if (entity.hasComponent<TagComponent>() &&
-                                            entity.getComponent<TagComponent>().mTagType == TagType::EditModeEntity)
+                                        auto& id = entity.getComponent<IDComponent>();
+
+                                        if (ImGui::Selectable(id._name.c_str(), id.isPicked))
                                         {
-                                            auto& id = entity.getComponent<IDComponent>();
-                                            if (ImGui::Selectable(id._name.c_str(), id.isPicked))
+                                            for (auto& e : getSystemEntities())
                                             {
-                    
                                                 if (e.hasComponent<IDComponent>())
                                                 {
                                                     e.getComponent<IDComponent>().isPicked = false;
                                                     e.getComponent<VertexEditStubComponent>().mEdit = false;
                                                 }
-                           
-                                                entity.getComponent<VertexEditStubComponent>().mEdit = true;
-                                                id.isPicked = true;
+
                                             }
+                                            entity.getComponent<VertexEditStubComponent>().mEdit = true;
+                                            id.isPicked = true;
                                         }
                                     }
                                 }
