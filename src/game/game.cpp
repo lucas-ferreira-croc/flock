@@ -182,7 +182,7 @@ void Game::loadLevel(int level)
     teapot.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     teapot.addComponent<IDComponent>("teapot");
     teapot.addComponent<RigidBodyComponent>();
-    //teapot.addComponent<EditComponent>(_registry, entities, teapot.getComponent<MeshComponent>(), teapot.getComponent<TransformComponent>(), teapot.getComponent<IDComponent>()._name, _camera->getPosition());
+    // teapot.addComponent<EditComponent>(_registry, entities, teapot.getComponent<MeshComponent>(), teapot.getComponent<TransformComponent>(), teapot.getComponent<IDComponent>()._name, _camera->getPosition());
 
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.0f), 5.0f, "teapot");
 
@@ -216,6 +216,7 @@ void Game::loadLevel(int level)
     IKtarget.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     IKtarget.addComponent<IDComponent>("IKtarget");
     IKtarget.addComponent<RigidBodyComponent>();
+    IKtarget.addComponent<EditComponent>(_registry, entities, IKtarget.getComponent<MeshComponent>(), IKtarget.getComponent<TransformComponent>(), IKtarget.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(-1.0f, 0.0f, 0.0f), 1.0f, .3f, "IKtarget", 1.0f);
 
     entities.push_back(IKtarget);  

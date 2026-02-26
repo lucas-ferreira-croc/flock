@@ -6,7 +6,7 @@
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<MeshTexture> textures)
     : vertices(vertices), indices(indices), textures(textures)
 {
-    //weldVertices();
+    weldVertices();
     setupMesh();
     constructFaces();
     constructEdges();

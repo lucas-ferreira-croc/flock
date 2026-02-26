@@ -268,6 +268,7 @@ public:
                             auto& vertexStubs = e.getComponent<EditComponent>().mVertexStubs;
                             for(auto& edge : e.getComponent<EditComponent>().mEdgeStubs)
                             {
+                                auto& EDES = e.getComponent<EditComponent>().mEdgeStubs;
                                 auto& v1Stub = vertexStubs.at(edge.vId1);
                                 auto& v2Stub = vertexStubs.at(edge.vId2);
                                 if (ImGui::Selectable(std::to_string(edge.id).c_str()))
