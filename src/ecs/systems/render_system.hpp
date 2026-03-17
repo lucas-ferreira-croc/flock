@@ -9,6 +9,7 @@
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
 #include "ecs/components/fabrik_component.hpp"
+#include "ecs/components/perlin_noise_component.hpp"
 
 enum class RenderPass 
 {
@@ -265,6 +266,22 @@ void renderPass(glm::mat4 projection, std::shared_ptr<Camera> camera, Display& d
         }
 
         // Renderizar mesh
+        // if(entity.hasComponent<PerlinNoiseComponent>())
+        // {
+        //     Logger::log("aiu");
+        //        auto& noise = entity.getComponent<PerlinNoiseComponent>();
+
+        //         shader->setInt("ourTexture", 0);
+        //         glActiveTexture(GL_TEXTURE0);
+        //         glBindTexture(GL_TEXTURE_2D, noise._texture.textureObject);
+
+        //         auto& mesh = entity.getComponent<MeshComponent>();
+        //         mesh.model->render(*shader);
+
+        //         glBindTexture(GL_TEXTURE_2D, 0);
+        //         continue;
+        // }
+
         if(entity.hasComponent<MeshComponent>())
         {
             shader->setInt("shadowMap", 2);

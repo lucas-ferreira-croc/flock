@@ -32,15 +32,15 @@ private:
         std::invoke(callbackFunction, ownerInstance, static_cast<TEvent&>(e));
     }
 
-    virtual ~EventCallback() override = default;
-
+    
 public:
     EventCallback(TOwner* ownerInstance, CallbackFunction callbackFunction)
     {
         this->ownerInstance = ownerInstance;
         this->callbackFunction = callbackFunction;
     }
-
+    
+    virtual ~EventCallback() override = default;
 };
 
 typedef std::list<std::unique_ptr<IEventCallBack>> HandlerList;
@@ -71,19 +71,20 @@ public:
         {
             subscribers[typeid(TEvent)] = std::make_unique<HandlerList>();
         }
-        subscribers.insert[typeid(TEvent)]->push_back(std::move(subscriber));
+        subscribers[typeid(TEvent)]->push_back(std::move(subscriber));
     }
 
     template<typename TEvent, typename ...TArgs>
-    void emmitEvent()
+    void emmitEvent(TArgs&& ...args)
     {
-        auto handlers = subscribers[TEvent].get();
+        auto handlers = subscribers[typeid(TEvent)].get();
         if(handlers)
         {
-            for(auto eventCallback : handlers)
+            for(auto it = handlers->begin(); it != handlers->end(); it++)
             {
-                TEvent event(std::forward(...args));
-                eventCallback->execute(event);
+                auto handler = it->get();
+                TEvent event(std::forward<TArgs>(args)...);
+                handler->execute(event);
             }
         }
     }

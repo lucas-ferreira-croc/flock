@@ -18,7 +18,6 @@
 #include "ecs/components/shader_component.hpp"
 #include "ecs/components/material_component.hpp"
 #include "ecs/components/cubemap_component.hpp"
-//#include "ecs/components/cloth_component.hpp"
 #include "ecs/components/FABRIK_component.hpp"
 
 #include "ecs/systems/render_system.hpp"
@@ -28,17 +27,11 @@
 #include "ecs/systems/ik_system.hpp"
 #include "ecs/systems/editmode_system.hpp"
 
-// #include "node_graph/node_graph.hpp"
-// #include "node_graph/output_node.hpp"
-// #include "node_graph/node_ui.hpp"
+#include "ecs/components/perlin_noise_component.hpp"
 
 double Game::mouse_x = 0.0f, Game::mouse_y = 0.0f;
 bool Game::mouseClick = false;
 bool simulating = false;
-//NodeUIManager* uiManager;
-//NodeGraph* graph;
-//std::shared_ptr<OutputNode> outputNode;
-//std::vector<std::shared_ptr<BaseNode>> nodes_;
 
 void copyPhysicsToGameVec(Physics::vec3& in, glm::vec3& out)
 {
@@ -109,6 +102,7 @@ void Game::loadLevel(int level)
     std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
     std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
     std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
+    std::string fsTexturefilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_simple_texture.glsl";
     std::string fsReflectionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_reflection.glsl";
     std::string fsRefractionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_refraction.glsl";
     DirectionalLight directionalLight(glm::vec3(1.0f), 0.7f, 0.7f);
@@ -193,8 +187,10 @@ void Game::loadLevel(int level)
     Entity plane = _registry->createEntity();
     //plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(-90.0f, 0.0f, 0.0f));
     plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\plane.obj");
-    plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
+    //plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\plane.obj");
+    plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\noise_plane.obj");
+    plane.addComponent<ShaderComponent>(vsFilename, fsFilename);
+    //plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
     plane.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
     plane.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
@@ -202,6 +198,8 @@ void Game::loadLevel(int level)
     plane.getComponent<ShaderComponent>().setSpotLights(spotLights);    
     plane.addComponent<IDComponent>("plane");
     plane.addComponent<RigidBodyComponent>();
+    plane.addComponent<PerlinNoiseComponent>();
+    plane.getComponent<PerlinNoiseComponent>().generateTexture();
     plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
@@ -216,7 +214,7 @@ void Game::loadLevel(int level)
     IKtarget.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
     IKtarget.addComponent<IDComponent>("IKtarget");
     IKtarget.addComponent<RigidBodyComponent>();
-    IKtarget.addComponent<EditComponent>(_registry, entities, IKtarget.getComponent<MeshComponent>(), IKtarget.getComponent<TransformComponent>(), IKtarget.getComponent<IDComponent>()._name, _camera->getPosition());
+    //IKtarget.addComponent<EditComponent>(_registry, entities, IKtarget.getComponent<MeshComponent>(), IKtarget.getComponent<TransformComponent>(), IKtarget.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodySphere(glm::vec3(-1.0f, 0.0f, 0.0f), 1.0f, .3f, "IKtarget", 1.0f);
 
     entities.push_back(IKtarget);  
@@ -369,11 +367,13 @@ void Game::update()
     }
 
     _eventBus->reset();
+  
 
     _camera->update(_deltaTime);
     
-    _registry->getSystem<MovementSystem>().Update(_deltaTime);
-    _registry->getSystem<EditModeSystem>().Update(entities);
+    _registry->update();
+
+    _registry->getSystem<EditModeSystem>().Update(entities, _eventBus);
 
     if(simulating)
     {
@@ -433,7 +433,6 @@ void Game::update()
             }
     }
 
-    _registry->update();
 }
 void Game::render()
 {

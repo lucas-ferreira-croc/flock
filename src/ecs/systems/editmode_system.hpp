@@ -10,6 +10,7 @@
 #include "ecs/components/edit_component.hpp"
 #include "ecs/components/id_component.hpp"
 #include "ecs/components/mesh_component.hpp"
+#include "events/rigidbody_changed_event.hpp"
 
 
 class EditModeSystem : public System
@@ -20,9 +21,10 @@ public:
         requireComponent<EditComponent>();
     }
 
-    void Update(std::vector<Entity>& entities)
+    void Update(std::vector<Entity>& entities, std::unique_ptr<EventBus>& eventBus)
     {
-
+        std::pair<bool, std::string> editedEntity;
+        editedEntity.first = false;
         for (auto& parent : getSystemEntities())
         {
             auto& parentTransform = parent.getComponent<TransformComponent>();
@@ -76,6 +78,8 @@ public:
                 }
 
                 stub.mLastPosition = localPos;
+                editedEntity.first = true;
+                editedEntity.second = parent.getComponent<IDComponent>()._name;
             }
             else if(parent.getComponent<EditComponent>().mCurrentEditType == EditType::EDGE)
             {
@@ -112,6 +116,8 @@ public:
                     }
                     stub.mLastPosition = localPos;
                 }
+                editedEntity.first = true;
+                editedEntity.second = parent.getComponent<IDComponent>()._name;
             }
             else if(parent.getComponent<EditComponent>().mCurrentEditType == EditType::FACE)
             {
@@ -148,6 +154,8 @@ public:
                     }
                     stub.mLastPosition = localPos;
                 }
+                editedEntity.first = true;
+                editedEntity.second = parent.getComponent<IDComponent>()._name;
             }
         }   
     }

@@ -11,10 +11,12 @@ public:
 	Texture();
 	Texture(std::vector<std::string> faces);
 	Texture(GLenum textureTarget, std::string filepath);
+	Texture(int width, int height);
 	~Texture();
 
 	bool loadTexture();
 	bool loadTextureA();
+	bool loadTextureFromData(unsigned char*  data);
 	bool loadTextureGrayscale();
 	void use(GLenum textureUnit);
 	void clear();

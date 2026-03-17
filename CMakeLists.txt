@@ -24,10 +24,14 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT f
 
 add_subdirectory(deps/glfw)
 
+set(UTILS_SOURCE
+    src/utils/perlin_noise.cpp
+    src/utils/perlin_noise.hpp
+)
+
 set(EVENT_SYSTEM_SOURCE
-    src/events/collision_event.hpp
-    src/events_bus/event_bus.hpp
-    src/events_bus/event.hpp
+    src/event_bus/event_bus.hpp
+    src/event_bus/event.hpp
 )
 
 set(INTEGRATION_SOURCE
@@ -45,6 +49,7 @@ set(ECS_SOURCE
 )
 
 set(COMPONENTS_SOURCE
+    src/ecs/components/perlin_noise_component.hpp
     src/ecs/components/transform_component.hpp
     src/ecs/components/rigid_body_component.hpp
     src/ecs/components/mesh_component.hpp
@@ -205,6 +210,8 @@ add_executable(flock
     ${ECS_SOURCE}
     ${PHYSICS_SOURCE}
     ${INTEGRATION_SOURCE}
+    ${EVENT_SYSTEM_SOURCE}
+    ${UTILS_SOURCE}
     ${FLOCK_PHYSICS_SOURCE}
 )
 
