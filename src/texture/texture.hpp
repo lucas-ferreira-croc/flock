@@ -16,7 +16,8 @@ public:
 
 	bool loadTexture();
 	bool loadTextureA();
-	bool loadTextureFromData(unsigned char*  data);
+	bool loadGreyTextureFromData(unsigned char* data, std::string seed);
+	bool loadTextureFromData(unsigned char* data, std::string seed);
 	bool loadTextureGrayscale();
 	void use(GLenum textureUnit);
 	void clear();

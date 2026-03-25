@@ -184,7 +184,7 @@ bool Texture::loadTextureGrayscale()
 	return true;
 }
 
-bool Texture::loadTextureFromData(unsigned char*  data)
+bool Texture::loadGreyTextureFromData(unsigned char*  data, std::string seed)
 {
 	stbi_set_flip_vertically_on_load(true);
 
@@ -210,10 +210,10 @@ bool Texture::loadTextureFromData(unsigned char*  data)
 	glGenTextures(1, &textureObject);
 	glBindTexture(GL_TEXTURE_2D, textureObject);
 
-	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glTexImage2D(textureTarget, 0, GL_RED, _width, _height, 0, GL_RED, GL_UNSIGNED_BYTE, tex_data);
 
@@ -223,7 +223,51 @@ bool Texture::loadTextureFromData(unsigned char*  data)
 	int channels = 1; // grayscale
     int stride = _width * channels;
 
-    stbi_write_png("alfa.png", _width, _height, channels, data, stride);
+	std::string filename = "noise" + seed + ".png";
+    stbi_write_png(filename.c_str(), _width, _height, channels, data, stride);
+}
+
+bool Texture::loadTextureFromData(unsigned char* data, std::string seed)
+{
+	stbi_set_flip_vertically_on_load(true);
+
+	unsigned char* tex_data = data;
+	if (!tex_data)
+	{
+		Logger::warning("Loading default error texture");
+
+		_width = 0;
+		_height = 0;
+		_bitDepth = 0;
+		tex_data = stbi_load(_filepath.c_str(), &_width, &_height, &_bitDepth, 4);
+
+		if (!tex_data)
+		{
+			Logger::err("Could not load fallback texture");
+			return false;
+		}
+	}
+
+	Logger::log("succesffuly loaded texture");
+
+	glGenTextures(1, &textureObject);
+	glBindTexture(GL_TEXTURE_2D, textureObject);
+
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexImage2D(textureTarget, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+
+	glGenerateMipmap(textureTarget);
+	glBindTexture(textureTarget, 0);
+
+	int channels = 4;
+	int stride = _width * channels;
+
+	std::string filename = "noise" + seed + ".png";
+	stbi_write_png(filename.c_str(), _width, _height, channels, data, stride);
 }
 
 void Texture::use(GLenum textureUnit)

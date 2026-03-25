@@ -199,7 +199,7 @@ void Game::loadLevel(int level)
     plane.addComponent<IDComponent>("plane");
     plane.addComponent<RigidBodyComponent>();
     plane.addComponent<PerlinNoiseComponent>();
-    plane.getComponent<PerlinNoiseComponent>().generateTexture();
+    plane.getComponent<PerlinNoiseComponent>().generateTexture(PerlinNoiseComponent::DrawMode::ColourMap);
     plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
@@ -347,6 +347,19 @@ void Game::processInput()
         {
             auto shaderComponent = _registry->getComponent<ShaderComponent>(entity);
             shaderComponent.reset();
+        }
+    }
+
+    if (glfwGetKey(_display->getWindow(), GLFW_KEY_Z) == GLFW_PRESS)
+    {
+        for(auto entity : entities)
+        {
+            if(entity.getComponent<IDComponent>()._name == "plane")
+            {
+                int seed = rand() & 1001;
+                entity.getComponent<PerlinNoiseComponent>().setSeed(seed);
+                entity.getComponent<PerlinNoiseComponent>().generateTexture(PerlinNoiseComponent::DrawMode::ColourMap);
+            }
         }
     }
 }

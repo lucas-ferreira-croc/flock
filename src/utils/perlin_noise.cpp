@@ -79,8 +79,8 @@ float PerlinNoise::Noise(float x, float y)
 
 	for(int i = 0; i < octaveCount; i++)
 	{
-		float sampleX = x * frequency + octaveOffsets[i].x + offset.x;
-		float sampleY = y * frequency + octaveOffsets[i].y + offset.y;
+		float sampleX = x * frequency;// + octaveOffsets[i].x + offset.x;
+		float sampleY = y * frequency;// + octaveOffsets[i].y + offset.y;
 
 		float perlinValue = interpolatedNoise(sampleX, sampleY);
 		noiseHeight += perlinValue * amplitude;
