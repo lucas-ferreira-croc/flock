@@ -1,6 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/matrix.hpp>
 #include <GLFW/glfw3.h>

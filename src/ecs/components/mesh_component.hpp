@@ -22,32 +22,32 @@ struct MeshComponent
         switch(meshType)
         {
             case MeshType::BOX:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\cube.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\cube.fbx";
             break;
 
             case MeshType::PLANE:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\plane1.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\plane1.fbx";
                 break;
             break;
 
             case MeshType::SPHERE:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\sphere.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\sphere.fbx";
                 break;
             break;
 
             case MeshType::CONE:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\cone.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\cone.fbx";
                 break;
             break;
 
             case MeshType::CYLINDER:
-                path = "C:\\dev\\shader\\flock\\assets\\models\\cylinder.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\cylinder.fbx";
                 break;
             break;
 
             default:
                 Logger::err("Something terrible happened, no mesh selected in mesh component");
-                path = "C:\\dev\\shader\\flock\\assets\\models\\cube.fbx";
+                path = "C:\\dev\\flock\\assets\\models\\cube.fbx";
         }
 
         model = std::make_shared<Model>(path.c_str());

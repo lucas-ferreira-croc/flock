@@ -94,8 +94,8 @@ void Display::initializeWindow()
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
   
-	std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v_framebuffer.glsl";
-	std::string  fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_framebuffer.glsl";
+	std::string vsFilename = "C:\\dev\\flock\\assets\\shaders\\v_framebuffer.glsl";
+	std::string  fsFilename = "C:\\dev\\flock\\assets\\shaders\\f_framebuffer.glsl";
 
     float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
@@ -142,13 +142,13 @@ void Display::initializeWindow()
 
 	_depthbufferShader = std::make_shared<Shader>();
 	
-	vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v_depthMap.glsl";
- 	fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_depthMap.glsl";
+	vsFilename = "C:\\dev\\flock\\assets\\shaders\\v_depthMap.glsl";
+ 	fsFilename = "C:\\dev\\flock\\assets\\shaders\\f_depthMap.glsl";
 	_depthbufferShader->createFromFile(vsFilename, fsFilename);
 	
 
-	vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v_debug_depth.glsl";
- 	fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_debug_depth.glsl";
+	vsFilename = "C:\\dev\\flock\\assets\\shaders\\v_debug_depth.glsl";
+ 	fsFilename = "C:\\dev\\flock\\assets\\shaders\\f_debug_depth.glsl";
 	depthDebugShader = std::make_shared<Shader>();
 	depthDebugShader->createFromFile(vsFilename, fsFilename);
 	_depthbufferShader->bind();

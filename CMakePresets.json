@@ -7,19 +7,19 @@
   },
   "configurePresets": [
     {
-      "name": "vc17-release",
-      "displayName": "Visual Studio 2022 Release",
-      "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/build/vc17/release",
+      "name": "vc16-release",
+      "displayName": "Visual Studio 2019 Release",
+      "generator": "Visual Studio 16 2019",
+      "binaryDir": "${sourceDir}/build/vc16/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "vc17-debug",
-      "displayName": "Visual Studio 2022 Debug",
-      "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/build/vc17/debug",
+      "name": "vc16-debug",
+      "displayName": "Visual Studio 2019 Debug",
+      "generator": "Visual Studio 16 2019",
+      "binaryDir": "${sourceDir}/build/vc16/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }

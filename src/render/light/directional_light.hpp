@@ -2,6 +2,7 @@
 #define  DIRECTIONAL_LIGHT_HPP
 
 #include "base_light.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
 class DirectionalLight : public BaseLight

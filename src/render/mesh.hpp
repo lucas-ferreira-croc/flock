@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include "render/shader.hpp"
 #include "texture/texture.hpp"

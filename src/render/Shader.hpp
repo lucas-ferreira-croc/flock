@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include <glad/gl.h>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
 class Shader

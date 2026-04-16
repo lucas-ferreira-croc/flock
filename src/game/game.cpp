@@ -6,6 +6,7 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "log/logger.hpp"
@@ -99,12 +100,12 @@ void Game::loadLevel(int level)
     _registry->addSystem<MultiEndedIKSystem>();
     _registry->addSystem<EditModeSystem>();
 
-    std::string vsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\v.glsl";
-    std::string fsFilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f.glsl";
-    std::string fsColorfilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_color.glsl";
-    std::string fsTexturefilename = "C:\\dev\\shader\\flock\\assets\\shaders\\f_simple_texture.glsl";
-    std::string fsReflectionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_reflection.glsl";
-    std::string fsRefractionName = "C:\\dev\\shader\\flock\\assets\\shaders\\f_refraction.glsl";
+    std::string vsFilename = "C:\\dev\\flock\\assets\\shaders\\v.glsl";
+    std::string fsFilename = "C:\\dev\\flock\\assets\\shaders\\f.glsl";
+    std::string fsColorfilename = "C:\\dev\\flock\\assets\\shaders\\f_color.glsl";
+    std::string fsTexturefilename = "C:\\dev\\flock\\assets\\shaders\\f_simple_texture.glsl";
+    std::string fsReflectionName = "C:\\dev\\flock\\assets\\shaders\\f_reflection.glsl";
+    std::string fsRefractionName = "C:\\dev\\flock\\assets\\shaders\\f_refraction.glsl";
     DirectionalLight directionalLight(glm::vec3(1.0f), 0.7f, 0.7f);
     //directionalLight.direction = glm::normalize(glm::vec3(-2.0f, -4.0f, -2.0f)); 
     directionalLight.direction = glm::normalize(glm::vec3(-1.0f, -3.0f, -10.0f)); 
@@ -132,15 +133,15 @@ void Game::loadLevel(int level)
     spotLights.push_back(spotLight0);
 
 
-    std::string cubemapVS = "C:\\dev\\shader\\flock\\assets\\shaders\\v_skybox.glsl";
-    std::string cubemapFS = "C:\\dev\\shader\\flock\\assets\\shaders\\f_skybox.glsl";
+    std::string cubemapVS = "C:\\dev\\flock\\assets\\shaders\\v_skybox.glsl";
+    std::string cubemapFS = "C:\\dev\\flock\\assets\\shaders\\f_skybox.glsl";
     std::vector<std::string> cubemapFaces = {
-        "C:\\dev\\shader\\flock\\assets\\skybox\\right.jpg",
-        "C:\\dev\\shader\\flock\\assets\\skybox\\left.jpg",
-        "C:\\dev\\shader\\flock\\assets\\skybox\\top.jpg",
-        "C:\\dev\\shader\\flock\\assets\\skybox\\bottom.jpg",
-        "C:\\dev\\shader\\flock\\assets\\skybox\\front.jpg",
-        "C:\\dev\\shader\\flock\\assets\\skybox\\back.jpg"
+        "C:\\dev\\flock\\assets\\skybox\\right.jpg",
+        "C:\\dev\\flock\\assets\\skybox\\left.jpg",
+        "C:\\dev\\flock\\assets\\skybox\\top.jpg",
+        "C:\\dev\\flock\\assets\\skybox\\bottom.jpg",
+        "C:\\dev\\flock\\assets\\skybox\\front.jpg",
+        "C:\\dev\\flock\\assets\\skybox\\back.jpg"
     };
 
     Entity cubemap = _registry->createEntity();
@@ -153,7 +154,7 @@ void Game::loadLevel(int level)
 
     Entity cube = _registry->createEntity();
     cube.addComponent<TransformComponent>(glm::vec3(3.0f, -3.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    cube.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\cube.obj");
+    cube.addComponent<MeshComponent>("C:\\dev\\flock\\assets\\models\\cube.obj");
     cube.addComponent<MaterialComponent>(glm::vec3(0.7f), glm::vec3(0.7f), glm::vec3(0.7f), 8.0f);
     cube.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     cube.getComponent<ShaderComponent>().addUniformVec3("cameraPos", _camera->getPosition());
@@ -167,7 +168,7 @@ void Game::loadLevel(int level)
 
     Entity teapot = _registry->createEntity();
     teapot.addComponent<TransformComponent>(glm::vec3(-3.0f, -2.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    teapot.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\smooth_teapot.dae");
+    teapot.addComponent<MeshComponent>("C:\\dev\\flock\\assets\\models\\smooth_teapot.dae");
     teapot.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     teapot.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 16.0f);
     //teapot.getComponent<ShaderComponent>().setDirectionalLight(directionalLight);
@@ -186,9 +187,9 @@ void Game::loadLevel(int level)
 
     Entity plane = _registry->createEntity();
     //plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(-90.0f, 0.0f, 0.0f));
-    plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    //plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\plane.obj");
-    plane.addComponent<MeshComponent>("C:\\dev\\shader\\flock\\assets\\models\\noise_plane.obj");
+    plane.addComponent<TransformComponent>(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    //plane.addComponent<MeshComponent>("C:\\dev\\flock\\assets\\models\\plane.obj");
+    plane.addComponent<MeshComponent>("C:\\dev\\flock\\assets\\models\\noise_terrain.obj");
     plane.addComponent<ShaderComponent>(vsFilename, fsFilename);
     //plane.addComponent<ShaderComponent>(vsFilename, fsColorfilename);
     plane.addComponent<MaterialComponent>(glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), glm::vec3(1.0f, 0.5f, 0.31f), 32.0f);
@@ -200,7 +201,7 @@ void Game::loadLevel(int level)
     plane.addComponent<RigidBodyComponent>();
     plane.addComponent<TerrainComponent>();
     plane.getComponent<TerrainComponent>().generateTexture(TerrainComponent::DrawMode::ColourMap);
-    plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
+    //plane.addComponent<EditComponent>(_registry, entities, plane.getComponent<MeshComponent>(), plane.getComponent<TransformComponent>(), plane.getComponent<IDComponent>()._name, _camera->getPosition());
     _registry->getSystem<PhysicsSystemECS>().addRigidBodyBox(glm::vec3(0.0f, -5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(15.0f, 0.15f, 15.0f), 0.0f, "plane");
     entities.push_back(plane);
 
@@ -305,7 +306,7 @@ void Game::loadLevel(int level)
 void Game::setup()
 {
     loadLevel(1);
-    //model = std::make_unique<Model>("C:\\dev\\shader\\flock\\assets\\models\\cube\\cube.obj");
+    //model = std::make_unique<Model>("C:\\dev\\flock\\assets\\models\\cube\\cube.obj");
     previousSeconds = glfwGetTime();
 }
 

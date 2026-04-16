@@ -52,7 +52,7 @@ struct FABRIKComponent
             glBindVertexArray(0);
 
             shader = std::make_shared<Shader>();
-            shader->createFromFile("C:\\dev\\shader\\flock\\assets\\shaders\\v_simple.glsl", "C:\\dev\\shader\\flock\\assets\\shaders\\f_simple.glsl");
+            shader->createFromFile("C:\\dev\\flock\\assets\\shaders\\v_simple.glsl", "C:\\dev\\flock\\assets\\shaders\\f_simple.glsl");
         }
     }
 

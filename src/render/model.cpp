@@ -159,7 +159,7 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* material, aiTex
 std::shared_ptr<Texture> Model::textureFromFile(const char* path, const std::string& directory)
 {
     std::string filename = std::string(path);
-    filename = directory + '\\' + filename;
+    //filename = directory + '\\' + filename;
 
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(GL_TEXTURE_2D, filename);
     texture->loadTextureA();

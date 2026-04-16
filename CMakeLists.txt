@@ -217,7 +217,7 @@ add_executable(flock
 
 add_custom_command(TARGET flock POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/deps/assimp/bin/assimp-vc143-mt.dll"
+        "${CMAKE_SOURCE_DIR}/deps/assimp/build/bin/Release/assimp-vc142-mt.dll"
         "$<TARGET_FILE_DIR:flock>"
 )
 
@@ -229,12 +229,13 @@ target_include_directories(flock PRIVATE
 	deps/glfw/include
 	deps/glad/include
 	deps/glm
+    deps/assimp/build/include
     deps/assimp/include
     flock_physics/src/
 )
 
 target_link_directories(flock PRIVATE
-    deps/assimp/lib/Release
+    deps/assimp/build/lib/Release
 )
 
-target_link_libraries(flock PRIVATE glfw Opengl32 assimp-vc143-mt)
+target_link_libraries(flock PRIVATE glfw Opengl32 assimp-vc142-mt.lib)

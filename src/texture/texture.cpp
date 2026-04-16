@@ -68,7 +68,7 @@ bool Texture::loadTexture()
 		Logger::err("Could not find: " + _filepath);
 		Logger::warning("Loading default error texture");
 
-		_filepath = "C:\\dev\\shader\\flock\\assets\\images\\error.png";
+		_filepath = "C:\\dev\\flock\\assets\\images\\error.png";
 		_width = 0;
 		_height = 0;
 		_bitDepth = 0;
@@ -102,7 +102,7 @@ bool Texture::loadTexture()
 
 bool Texture::loadTextureA()
 {
-	stbi_set_flip_vertically_on_load(true);
+	//stbi_set_flip_vertically_on_load(true);
 
 	int force_channels = 4;
 	unsigned char* tex_data = stbi_load(_filepath.c_str(), &_width, &_height, &_bitDepth, force_channels);
@@ -111,7 +111,7 @@ bool Texture::loadTextureA()
 		Logger::err("Could not find: " + _filepath);
 		Logger::warning("Loading default error texture");
 
-		_filepath = "C:\\dev\\shader\\flock\\assets\\images\\error.png";
+		_filepath = "C:\\dev\\flock\\assets\\images\\error.png";
 		_width = 0;
 		_height = 0;
 		_bitDepth = 0;
@@ -152,7 +152,7 @@ bool Texture::loadTextureGrayscale()
 		Logger::err("Could not find: " + _filepath);
 		Logger::warning("Loading default error texture");
 
-		_filepath = "C:\\dev\\shader\\flock\\assets\\images\\error.png";
+		_filepath = "C:\\dev\\flock\\assets\\images\\error.png";
 		_width = 0;
 		_height = 0;
 		_bitDepth = 0;
